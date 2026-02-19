@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard – GEHU Haldwani</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#29b6f6;--blue-dark:#0288d1;--blue-light:#f3fee1;
+  --red:#e53935;--orange:#ff9800;--card:#fff;--bg:#e1f5fe;
+  --text:#0a2540;--muted:#4a7fa5;--border:#b3e5fc;
+}
+body{font-family:'Sora',sans-serif;background:linear-gradient(160deg,#b3e5fc 0%,#e1f5fe 50%,#b3e5fc 100%);min-height:100vh;margin:0;padding-bottom:75px;color:var(--text);}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#29b6f6,#29b6f6);
+  padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+.header-left{display:flex;align-items:center;gap:10px;}
+.header-left .logo{font-size:22px;}
+.header-left h1{font-size:15px;font-weight:700;color:#e1f5fe;letter-spacing:-.2px;}
+.header-left p{font-size:11px;color:rgba(187,222,251,.65);}
+.header-right{display:flex;gap:10px;align-items:center;}
+.notice-wrapper{position:relative;cursor:pointer;background:rgba(255,255,255,.12);
+  border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+  transition:background .2s;}
+.notice-wrapper:hover{background:rgba(255,255,255,.22);}
+.notice-icon{font-size:20px;}
+.notif-badge{
+  position:absolute;top:-3px;right:-3px;background:#e53935;color:#fff;
+  font-size:9px;font-weight:700;border-radius:50%;width:18px;height:18px;
+  display:none;align-items:center;justify-content:center;border:2px solid #0288d1;
+  animation:pulse 1.2s infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
+.logout-btn{font-size:12px;background:rgba(229,57,53,.8);color:#fff;border:none;
+  border-radius:8px;padding:6px 12px;cursor:pointer;font-family:'Sora',sans-serif;
+  font-weight:600;transition:background .2s;}
+.logout-btn:hover{background:#c62828;}
+
+/* PROFILE CARD */
+.profile-card{
+  background:linear-gradient(145deg,#0288d1,#0396d8,#29b6f6);
+  margin:14px;border-radius:20px;text-align:center;color:white;padding:28px 20px 20px;
+  position:relative;overflow:hidden;
+  box-shadow:0 8px 32px rgba(2,136,209,.4);
+}
+.profile-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;
+  background:rgba(255,255,255,.15);border-radius:50%;
+}
+.profile-pic-wrapper{position:relative;display:inline-block;cursor:pointer;}
+.profile-pic{width:100px;height:100px;border-radius:50%;border:3px solid rgba(255,255,255,.8);
+  object-fit:cover;display:block;transition:all .25s;}
+.profile-pic-wrapper:hover .profile-pic{opacity:.8;transform:scale(1.03);}
+.profile-pic-overlay{position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.6);
+  border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;border:2px solid #e1f5fe;}
+.pname{font-size:18px;font-weight:700;margin:10px 0 2px;letter-spacing:-.3px;}
+.pinfo{font-size:12px;opacity:.8;margin:2px 0;}
+.upload-status{font-size:11px;margin-top:4px;min-height:16px;color:#e1f5fe;}
+.bus-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:10px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);
+  border-radius:20px;padding:5px 16px;font-size:13px;font-weight:600;
+}
+
+/* TX ID CARD */
+.tx-card{
+  background:#fff;margin:0 14px 14px;border-radius:14px;
+  border:2px solid #81d4fa;padding:14px 16px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.tx-card-title{font-size:11px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.tx-id-display{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  background:#e1f5fe;color:#29b6f6;padding:10px 12px;
+  border-radius:8px;border:1px solid #81d4fa;word-break:break-all;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.tx-id-text{flex:1;}
+.tx-copy-mini{background:transparent;border:1px solid #81d4fa;color:#1d4ed8;
+  padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;
+  font-family:'Sora',sans-serif;white-space:nowrap;transition:all .2s;}
+.tx-copy-mini:hover{background:#e1f5fe;}
+.tx-not-paid{font-size:12px;color:#dc2626;background:#fff0f0;
+  padding:10px 12px;border-radius:8px;border:1px solid #fca5a5;}
+
+/* SECTION */
+.section{background:#fff;margin:0 14px 14px;border-radius:14px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.section-title{text-align:center;padding:12px;font-weight:700;font-size:14px;
+  background:linear-gradient(90deg,#e1f5fe,#b3e5fc);border-bottom:1px solid var(--border);
+  color:#0288d1;}
+.row{display:flex;justify-content:space-between;padding:11px 16px;
+  border-bottom:1px solid var(--border);font-size:13px;gap:12px;}
+.row:last-child{border:none;}
+.row-label{color:var(--muted);font-weight:600;}
+.row-val{font-weight:600;text-align:right;}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;bottom:0;width:100%;
+  background:linear-gradient(135deg,#29b6f6,#29b6f6);
+  display:flex;justify-content:space-around;
+  padding:8px 0 10px;z-index:100;
+  box-shadow:0 -2px 16px rgba(0,0,0,.3);
+}
+.nav-item{cursor:pointer;font-size:11px;text-align:center;color:rgba(255,255,255,.7);
+  padding:4px 12px;border-radius:10px;transition:all .2s;}
+.nav-item:hover,.nav-item.active{color:#e1f5fe;background:rgba(255,255,255,.2);}
+.nav-item span{font-size:20px;display:block;margin-bottom:2px;}
+
+/* MODAL */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.65);justify-content:center;align-items:center;z-index:1000;
+  padding:16px;}
+.modal-content{background:#fff;padding:22px;border-radius:16px;width:100%;max-width:380px;
+  position:relative;max-height:92vh;overflow-y:auto;}
+.modal-content::-webkit-scrollbar{width:4px;}
+.modal-content::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px;}
+.close{position:absolute;top:12px;right:16px;cursor:pointer;font-size:22px;color:#999;
+  background:none;border:none;line-height:1;transition:color .2s;}
+.close:hover{color:#e53935;}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:16px;color:var(--text);}
+input[type=text],input[type=password],select,textarea{
+  width:100%;padding:10px 12px;margin:5px 0;border:1px solid var(--border);
+  border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;
+  background:#fafafa;transition:border-color .2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);background:#fff;}
+textarea{min-height:75px;resize:vertical;}
+select option{background:#fff;}
+
+/* TX VERIFY BOX */
+.tx-verify-box{
+  background:#e1f5fe;border:2px solid #81d4fa;border-radius:12px;
+  padding:16px;margin-bottom:16px;
+}
+.tx-verify-title{font-size:13px;font-weight:700;color:#0288d1;margin-bottom:10px;}
+.tx-verify-desc{font-size:12px;color:#0277bd;margin-bottom:10px;line-height:1.5;}
+.tx-verify-input{width:100%;padding:10px 12px;border:1px solid #81d4fa;
+  border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;
+  background:#fff;letter-spacing:.5px;}
+.tx-verify-input:focus{outline:none;border-color:#0288d1;}
+.tx-error{color:#dc2626;font-size:12px;margin-top:6px;display:none;
+  background:#fef2f2;padding:6px 10px;border-radius:6px;border:1px solid #fecaca;}
+.tx-error.show{display:block;}
+
+/* BUTTONS */
+.btn{width:100%;padding:12px;color:#fff;border:none;border-radius:10px;
+  font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+  margin-top:10px;transition:all .2s;position:relative;overflow:hidden;}
+.btn-green{background:linear-gradient(135deg,#0288d1,#29b6f6);
+  box-shadow:0 4px 16px rgba(2,136,209,.35);}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(2,136,209,.45);}
+.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  box-shadow:0 4px 16px rgba(42,164,219,.35);}
+.btn-blue:hover{transform:translateY(-1px);}
+.btn-red{background:linear-gradient(135deg,#e53935,#c62828);}
+.btn:active{transform:translateY(0);}
+
+/* COMPLAINT STYLES */
+.complaint-item{background:#fafafa;border-radius:10px;padding:12px;margin-bottom:10px;
+  border-left:4px solid #ccc;font-size:13px;}
+.complaint-item.pending{border-left-color:#ff9800;}
+.complaint-item.resolved{border-left-color:#29b6f6;background:#e1f5fe;}
+.ci-meta{font-size:11px;color:#888;margin-top:4px;}
+.ci-status{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;margin-top:6px;}
+.ci-status.pending{background:#ffecb3;color:#e65100;}
+.ci-status.resolved{background:#c8e6c9;color:#0288d1;}
+.action-taken-card{background:linear-gradient(135deg,#e1f5fe,#f0f9ff);
+  border:2px solid #29b6f6;border-radius:10px;padding:12px;margin-top:8px;}
+.action-taken-header{display:flex;align-items:center;gap:8px;font-size:12px;
+  font-weight:700;color:#0288d1;margin-bottom:6px;}
+.action-taken-text{font-size:13px;color:#0277bd;line-height:1.5;}
+.action-taken-date{font-size:11px;color:#0288d1;margin-top:6px;}
+
+/* BUS BOOKING STATUS */
+.booking-confirmed{background:linear-gradient(135deg,#e1f5fe,#b3e5fc);
+  border:2px solid #29b6f6;border-radius:12px;padding:14px;text-align:center;}
+.booking-confirmed .bc-icon{font-size:32px;margin-bottom:4px;}
+.booking-confirmed .bc-title{font-weight:700;color:#15803d;font-size:15px;}
+.booking-confirmed .bc-detail{font-size:13px;color:#166534;margin-top:4px;}
+
+/* SEAT */
+.bus-layout{display:grid;grid-template-columns:1fr 1fr 1fr 16px 1fr 1fr 1fr;
+  gap:4px;margin:10px 0;}
+.seat{background:#ef5350;padding:9px 2px;text-align:center;cursor:pointer;
+  border-radius:6px;color:white;font-weight:700;font-size:10px;line-height:1.3;
+  transition:all .15s;user-select:none;}
+.seat:not(.booked):not(.aisle):hover{background:#c62828;transform:scale(1.08);}
+.seat.selected{background:#ff9800!important;box-shadow:0 0 0 2px #f57c00;}
+.seat.booked{background:#43a047!important;cursor:not-allowed;opacity:.9;}
+.seat.aisle{background:transparent;cursor:default;pointer-events:none;}
+.seat-legend{display:flex;gap:10px;margin:8px 0;flex-wrap:wrap;font-size:11px;color:#555;}
+.legend-dot{display:inline-block;width:12px;height:12px;border-radius:3px;
+  margin-right:3px;vertical-align:middle;}
+#previewImage{width:100%;margin-top:8px;display:none;border-radius:8px;
+  border:1px solid var(--border);}
+.selected-seat-info{font-size:13px;color:var(--blue-dark);font-weight:700;
+  min-height:20px;margin:6px 0;background:#e0f2fe;padding:6px 10px;
+  border-radius:7px;display:none;}
+.selected-seat-info.show{display:block;}
+
+/* NOTICE */
+#noticeList p{background:#f0f9ff;border-radius:8px;padding:10px;margin-bottom:8px;
+  font-size:13px;border-left:4px solid var(--blue);}
+.resolved-banner{background:#e1f5fe;border:2px solid #29b6f6;border-radius:10px;
+  padding:14px;margin-bottom:12px;}
+.rb-icon{font-size:28px;text-align:center;}
+.rb-title{color:#0288d1;font-weight:700;font-size:14px;margin:6px 0 4px;text-align:center;}
+.rb-action{font-size:13px;color:#0277bd;background:#fff;border-radius:7px;
+  padding:8px 10px;margin-top:6px;border-left:3px solid #29b6f6;}
+.rb-date{font-size:11px;color:#0288d1;margin-top:5px;text-align:right;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:#0288d1;color:#fff;padding:12px 20px;border-radius:12px;
+  font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:all .4s;
+  pointer-events:none;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.35);
+  max-width:300px;line-height:1.5;white-space:pre-line;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* section label inside modal */
+.modal-section-label{font-size:12px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="logo">🎓</span>
+    <div>
+      <h1>Student Dashboard</h1>
+      <p>GEHU Haldwani Campus</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="notice-wrapper" onclick="openNotice()">
+      <div class="notice-icon">🔔</div>
+      <div class="notif-badge" id="notifBadge">!</div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══ NOTICE MODAL ═══ -->
+<div id="noticeModal" class="modal">
+  <div class="modal-content">
+    <button class="close" onclick="noticeModal.style.display='none'">&times;</button>
+    <div class="modal-title">🔔 Notifications</div>
+    <div id="resolvedSection" style="display:none;">
+      <div style="font-size:12px;font-weight:700;color:#0288d1;margin-bottom:8px;">✅ Resolved Complaints</div>
+      <div id="resolvedList"></div>
+      <hr style="margin:12px 0;border-color:#e5e7eb;">
+    </div>
+    <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px;">📢 Bus Notices</div>
+    <div id="noticeList"></div>
+  </div>
+</div>
+
+<!-- ═══ PROFILE CARD ═══ -->
+<div class="profile-card">
+  <div class="profile-pic-wrapper" onclick="photoInput.click()">
+    <img src="https://via.placeholder.com/150" class="profile-pic" id="profilePic" alt="Photo">
+    <div class="profile-pic-overlay">📷</div>
+  </div>
+  <div class="upload-status" id="uploadStatus"></div>
+  <div class="pname" id="pName">Loading...</div>
+  <div class="pinfo" id="pRoll"></div>
+  <div class="pinfo" id="pEmail"></div>
+  <div class="pinfo" id="pPhone"></div>
+  <div id="pBusBadge"></div>
+</div>
+<input type="file" id="photoInput" accept="image/*" hidden>
+
+<!-- ═══ TRANSACTION ID CARD ═══ -->
+<div class="tx-card" id="txCard">
+  <div class="tx-card-title">🧾 Payment Transaction ID</div>
+  <div id="txCardContent">
+    <div class="tx-not-paid">⚠️ No payment found. Pay bus fee first to unlock Bus Card &amp; Seat booking.</div>
+  </div>
+</div>
+
+<!-- ═══ ID CARD ═══ -->
+<div class="section">
+  <div class="section-title">🪪 Student ID Card</div>
+  <div class="row"><span class="row-label">Roll No</span><span class="row-val" id="idRoll">—</span></div>
+  <div class="row"><span class="row-label">Phone</span><span class="row-val" id="idPhone">—</span></div>
+  <div class="row"><span class="row-label">DOB</span><span class="row-val" id="idDob">—</span></div>
+  <div class="row"><span class="row-label">Email</span><span class="row-val" id="idEmail" style="font-size:12px;">—</span></div>
+  <div class="row"><span class="row-label">College</span><span class="row-val" id="idCollege">—</span></div>
+  <div class="row"><span class="row-label">Course</span><span class="row-val" id="idCourse">—</span></div>
+</div>
+
+<!-- ═══ BUS BOOKING STATUS ═══ -->
+<div class="section" id="busStatusSection" style="display:none;">
+  <div class="section-title">🚌 My Bus Booking</div>
+  <div style="padding:14px;">
+    <div class="booking-confirmed">
+      <div class="bc-icon">🎉</div>
+      <div class="bc-title">Seat Confirmed!</div>
+      <div class="bc-detail">Bus: <b id="bsBus">—</b> &nbsp;|&nbsp; Seat: <b id="bsSeat">—</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MY COMPLAINTS ═══ -->
+<div class="section" id="myComplaintsSection" style="display:none;">
+  <div class="section-title">📝 My Complaints</div>
+  <div id="myComplaintsList" style="padding:12px;"></div>
+</div>
+
+<!-- ═══ COMPLAINT MODAL ═══ -->
+<div id="complaintModal" class="modal">
+  <div class="modal-content">
+    <button class="close" onclick="complaintModal.style.display='none'">&times;</button>
+    <div class="modal-title">📝 Complaint Box</div>
+    <div id="prevComplaintsWrap" style="display:none;">
+      <div class="modal-section-label">📋 My Previous Complaints</div>
+      <div id="prevComplaintsList"></div>
+      <hr style="margin:12px 0;border-color:#e5e7eb;">
+    </div>
+    <div class="modal-section-label">➕ New Complaint</div>
+    <input type="text" id="cName" placeholder="Your Name">
+    <input type="text" id="cCourse" placeholder="Course">
+    <select id="cBus">
+      <option value="">Select Bus Route</option>
+      <option>Route A</option><option>Route B</option><option>Route C</option>
+      <option>Route D</option><option>Route E</option><option>Route F</option>
+      <option>Route G</option><option>Route H</option><option>Route I</option>
+      <option>Route J</option><option>Route K</option><option>Route L</option>
+      <option>Route M</option><option>Route N</option><option>Route O</option>
+      <option>Route P</option><option>Route Q</option>
+    </select>
+    <textarea id="cText" placeholder="Describe your complaint in detail..."></textarea>
+    <button class="btn btn-green" onclick="submitComplaint()">📤 Submit Complaint</button>
+  </div>
+</div>
+
+<!-- ═══ TX VERIFY MODAL (for Bus Card & Seat) ═══ -->
+<div id="txVerifyModal" class="modal">
+  <div class="modal-content">
+    <button class="close" onclick="txVerifyModal.style.display='none'">&times;</button>
+    <div class="modal-title" id="txVerifyTitle">🔐 Verify Transaction</div>
+    <div class="tx-verify-box">
+      <div class="tx-verify-title">🧾 Enter Your Transaction ID</div>
+      <div class="tx-verify-desc">
+        Enter the unique Transaction ID you received after paying bus fee on the payment portal. 
+        It looks like:<br>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#166534;">GEHU-R[X]-[STOP]-[CODE]-[RAND]-[SALT]</span>
+      </div>
+      <input type="text" id="txVerifyInput" class="tx-verify-input" 
+        placeholder="e.g. GEHU-RB-SITARG-M9XK2A-R7F2K1-S4XP"
+        oninput="clearTxError()">
+      <div class="tx-error" id="txError">❌ Invalid Transaction ID. Please check and try again.</div>
+    </div>
+    <button class="btn btn-green" onclick="verifyAndProceed()">✅ Verify & Continue</button>
+  </div>
+</div>
+
+<!-- ═══ SEAT BOOKING MODAL ═══ -->
+<div id="seatModal" class="modal">
+  <div class="modal-content">
+    <button class="close" onclick="seatModal.style.display='none'">&times;</button>
+    <div class="modal-title">🚌 Book Your Seat</div>
+    <input type="text" id="sName" placeholder="Student Name">
+    <input type="text" id="sCourse" placeholder="Course">
+    <input type="text" id="sId" placeholder="Student Roll No">
+    <select id="sBus" onchange="loadSeats()">
+      <option value="">Select Bus Route</option>
+      <option value="A">Route A</option><option value="B">Route B</option>
+      <option value="C">Route C</option><option value="D">Route D</option>
+      <option value="E">Route E</option><option value="F">Route F</option>
+      <option value="G">Route G</option><option value="H">Route H</option>
+      <option value="I">Route I</option><option value="J">Route J</option>
+      <option value="K">Route K</option><option value="L">Route L</option>
+      <option value="M">Route M</option><option value="N">Route N</option>
+      <option value="O">Route O</option><option value="P">Route P</option>
+      <option value="Q">Route Q</option>
+    </select>
+    <div class="seat-legend" id="seatLegend" style="display:none;">
+      <span><span class="legend-dot" style="background:#ef5350;"></span>Available</span>
+      <span><span class="legend-dot" style="background:#43a047;"></span>Booked</span>
+      <span><span class="legend-dot" style="background:#ff9800;"></span>Selected</span>
+    </div>
+    <div id="seats" class="bus-layout"></div>
+    <div id="selectedSeatInfo" class="selected-seat-info"></div>
+    <div class="modal-section-label">Payment Screenshot</div>
+    <input type="file" id="screenshotInput" accept="image/*">
+    <img id="previewImage" alt="Screenshot Preview">
+    <button class="btn btn-blue" onclick="confirmBooking()">🎟️ Confirm Booking</button>
+  </div>
+</div>
+
+<!-- ═══ BUS CARD MODAL ═══ -->
+<div id="busCardModal" class="modal">
+  <div class="modal-content" style="background:linear-gradient(145deg,#0288d1,#29b6f6);color:#fff;border-radius:20px;">
+    <button class="close" onclick="busCardModal.style.display='none'" style="color:#e1f5fe;">&times;</button>
+    <div style="text-align:center;padding:10px 0 20px;">
+      <div style="font-size:14px;font-weight:600;color:#e1f5fe;letter-spacing:2px;margin-bottom:4px;">GEHU HALDWANI CAMPUS</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:4px;">🚌 BUS PASS</div>
+      <div style="font-size:11px;opacity:.7;">Semester 2025</div>
+    </div>
+    <div style="text-align:center;margin-bottom:16px;">
+      <img id="busCardPhoto" src="" style="width:80px;height:80px;border-radius:50%;border:3px solid #e1f5fe;object-fit:cover;">
+    </div>
+    <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:13px;">
+        <span style="opacity:.7;">Name</span><span id="bc-name" style="font-weight:700;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:13px;">
+        <span style="opacity:.7;">Roll No</span><span id="bc-roll" style="font-weight:700;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:13px;">
+        <span style="opacity:.7;">Course</span><span id="bc-course" style="font-weight:700;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:13px;">
+        <span style="opacity:.7;">Bus Route</span><span id="bc-bus" style="font-weight:700;color:#e1f5fe;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;">
+        <span style="opacity:.7;">Seat No</span><span id="bc-seat" style="font-weight:700;color:#e1f5fe;"></span>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px;font-size:10px;word-break:break-all;font-family:'JetBrains Mono',monospace;color:#86efac;">
+      <div style="font-size:10px;opacity:.7;margin-bottom:4px;">TX ID</div>
+      <span id="bc-txid"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<div class="bottom-nav">
+  <div class="nav-item" onclick="openSeatBooking()">
+    <span>🪑</span>Book Seat
+  </div>
+  <div class="nav-item" onclick="openComplaint()">
+    <span>📝</span>Complaint
+  </div>
+  <div class="nav-item" onclick="openBusCard()">
+    <span>🚌</span>Bus Card
+  </div>
+  <div class="nav-item" onclick="goToPayment()">
+    <span>💰</span>Pay Fee
+  </div>
+</div>
+
+<script>
+const API = "http://localhost:5000";
+let currentTxAction = null; // 'buscard' | 'seat'
+
+/* ── Storage helpers ── */
+function lsGet(k,fb){ try{const v=localStorage.getItem(k);return v===null?fb:JSON.parse(v);}catch(e){return fb;} }
+function lsSet(k,v){ try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;} }
+function lsRaw(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsRawSet(k,v){ try{localStorage.setItem(k,v);return true;}catch(e){return false;} }
+
+/* ── Auth check ── */
+const loggedEmail = lsRaw("loggedInEmail");
+if(!loggedEmail){ window.location.href="login.html"; }
+
+let STUDENT = {};
+
+/* ── Load Profile ── */
+async function loadProfile(){
+  const cached = lsGet("studentProfile",null);
+  if(cached && cached.email===loggedEmail){ STUDENT=cached; renderProfile(); }
+  try{
+    const res  = await fetch(`${API}/student/profile/${encodeURIComponent(loggedEmail)}`);
+    const data = await res.json();
+    if(data.success && data.student){ STUDENT=data.student; lsSet("studentProfile",STUDENT); renderProfile(); }
+  }catch(e){}
+}
+
+function renderProfile(){
+  document.getElementById("pName").textContent    = (STUDENT.name||"—").toUpperCase();
+  document.getElementById("pRoll").textContent    = STUDENT.rollNo || "";
+  document.getElementById("pEmail").textContent   = "📧 "+(STUDENT.email||"");
+  document.getElementById("pPhone").textContent   = "📞 "+(STUDENT.phone||"");
+  const badge = document.getElementById("pBusBadge");
+  badge.innerHTML = (STUDENT.bookedBus && STUDENT.bookedSeat)
+    ? `<div class="bus-badge">🚌 Route ${STUDENT.bookedBus} &nbsp;·&nbsp; Seat ${STUDENT.bookedSeat}</div>` : "";
+  document.getElementById("idRoll").textContent    = STUDENT.rollNo  || "—";
+  document.getElementById("idPhone").textContent   = STUDENT.phone   || "—";
+  document.getElementById("idDob").textContent     = STUDENT.dob     || "—";
+  document.getElementById("idEmail").textContent   = STUDENT.email   || "—";
+  document.getElementById("idCollege").textContent = STUDENT.college || "GEHU – Haldwani";
+  document.getElementById("idCourse").textContent  = STUDENT.course  || "—";
+  if(STUDENT.bookedBus && STUDENT.bookedSeat){
+    document.getElementById("busStatusSection").style.display="block";
+    document.getElementById("bsBus").textContent  = "Route "+STUDENT.bookedBus;
+    document.getElementById("bsSeat").textContent = STUDENT.bookedSeat;
+    lsRawSet("studentBus",STUDENT.bookedBus);
+  }
+  const photo = STUDENT.photo || lsRaw("profilePhoto_"+loggedEmail);
+  if(photo){
+    document.getElementById("profilePic").src = photo;
+    document.getElementById("busCardPhoto").src = photo;
+  }
+  document.getElementById("cName").value   = STUDENT.name   || "";
+  document.getElementById("cCourse").value = STUDENT.course || "";
+  document.getElementById("sName").value   = STUDENT.name   || "";
+  document.getElementById("sCourse").value = STUDENT.course || "";
+  document.getElementById("sId").value     = STUDENT.rollNo || "";
+
+  renderTxCard();
+}
+
+/* ═══════════════════════════════════════
+   TRANSACTION ID — core logic
+═══════════════════════════════════════ */
+function getSavedTxId(){
+  // Check localStorage first (saved after payment)
+  return lsRaw("gehu_txnId") || lsRaw("txnId") || (STUDENT && STUDENT.txnId) || null;
+}
+
+function isValidGEHUTxId(id){
+  if(!id) return false;
+  // Must start with GEHU- and have at least 5 dash-separated segments
+  const parts = id.trim().split("-");
+  return parts.length >= 5 && parts[0] === "GEHU";
+}
+
+function renderTxCard(){
+  const txId = getSavedTxId();
+  const content = document.getElementById("txCardContent");
+  if(txId && isValidGEHUTxId(txId)){
+    content.innerHTML = `
+      <div class="tx-id-display">
+        <span class="tx-id-text">${txId}</span>
+        <button class="tx-copy-mini" onclick="copyTxMini()">Copy</button>
+      </div>
+      <div style="font-size:11px;color:#0277bd;margin-top:6px;">
+        ✅ Payment verified — Bus Card &amp; Seat Booking unlocked
+      </div>`;
+  } else {
+    content.innerHTML = `<div class="tx-not-paid">
+      ⚠️ No payment found. Pay bus fee first to unlock Bus Card &amp; Seat Booking.<br>
+      <a href="payment.html" style="color:#dc2626;font-weight:700;text-decoration:underline;font-size:12px;margin-top:4px;display:inline-block;">Go to Payment →</a>
+    </div>`;
+  }
+}
+
+function copyTxMini(){
+  const txId = getSavedTxId();
+  if(!txId) return;
+  navigator.clipboard.writeText(txId).then(()=>{
+    showToast("✅ Transaction ID copied!");
+  });
+}
+
+/* ═══════════════════════════════════════
+   TX VERIFY MODAL
+═══════════════════════════════════════ */
+function openTxVerify(action){
+  currentTxAction = action;
+  document.getElementById("txVerifyTitle").textContent =
+    action==="buscard" ? "🪪 Verify to View Bus Card" : "🪑 Verify to Book Seat";
+  document.getElementById("txVerifyInput").value = "";
+  document.getElementById("txError").classList.remove("show");
+
+  // Pre-fill if already saved
+  const saved = getSavedTxId();
+  if(saved) document.getElementById("txVerifyInput").value = saved;
+
+  txVerifyModal.style.display = "flex";
+}
+
+function clearTxError(){
+  document.getElementById("txError").classList.remove("show");
+}
+
+function verifyAndProceed(){
+  const entered = document.getElementById("txVerifyInput").value.trim();
+  const saved   = getSavedTxId();
+
+  // Validation: must be a valid GEHU format AND match the saved one
+  if(!isValidGEHUTxId(entered)){
+    document.getElementById("txError").textContent = "❌ Invalid format. Transaction ID must start with GEHU- (e.g. GEHU-RA-DANPUR-...)";
+    document.getElementById("txError").classList.add("show");
+    return;
+  }
+  if(saved && entered !== saved){
+    document.getElementById("txError").textContent = "❌ Transaction ID does not match your payment record. Please check again.";
+    document.getElementById("txError").classList.add("show");
+    return;
+  }
+  if(!saved && isValidGEHUTxId(entered)){
+    // Allow if no saved TX (fallback: just format check)
+    lsRawSet("gehu_txnId", entered);
+    renderTxCard();
+  }
+
+  txVerifyModal.style.display = "none";
+
+  if(currentTxAction === "buscard") showBusCard();
+  else if(currentTxAction === "seat") seatModal.style.display = "flex";
+}
+
+/* ═══════════════════════════════════════
+   NAV ACTIONS
+═══════════════════════════════════════ */
+function goToPayment(){ window.location.href="payment.html"; }
+
+function openBusCard(){
+  const txId = getSavedTxId();
+  if(!txId || !isValidGEHUTxId(txId)){
+    openTxVerify("buscard");
+  } else {
+    // TX already saved, still ask for verify for security
+    openTxVerify("buscard");
+  }
+}
+
+function openSeatBooking(){
+  const txId = getSavedTxId();
+  if(!txId || !isValidGEHUTxId(txId)){
+    openTxVerify("seat");
+  } else {
+    openTxVerify("seat");
+  }
+}
+
+function showBusCard(){
+  const txId = getSavedTxId();
+  document.getElementById("bc-name").textContent   = (STUDENT.name||"—").toUpperCase();
+  document.getElementById("bc-roll").textContent   = STUDENT.rollNo  || "—";
+  document.getElementById("bc-course").textContent = STUDENT.course  || "—";
+  document.getElementById("bc-bus").textContent    = STUDENT.bookedBus  ? "Route "+STUDENT.bookedBus  : "Not booked";
+  document.getElementById("bc-seat").textContent   = STUDENT.bookedSeat || "Not booked";
+  document.getElementById("bc-txid").textContent   = txId || "—";
+  const photo = STUDENT.photo || lsRaw("profilePhoto_"+loggedEmail);
+  if(photo) document.getElementById("busCardPhoto").src = photo;
+  busCardModal.style.display = "flex";
+}
+
+/* ═══════════════════════════════════════
+   COMPLAINT SYSTEM
+═══════════════════════════════════════ */
+async function getMyComplaints(){
+  const all = lsGet("busComplaints",[]);
+  return all.filter(c=>c.email===loggedEmail);
+}
+
+async function checkForResolvedComplaints(){
+  const mine = await getMyComplaints();
+  const resolvedOnes = mine.filter(c=>c.resolved||(c.status&&c.status.toLowerCase()==="resolved"));
+  const prevSeen = parseInt(lsRaw("resolvedSeen_"+loggedEmail)||"0");
+  if(resolvedOnes.length > prevSeen){
+    const newest = resolvedOnes[resolvedOnes.length-1];
+    const actionText = newest.actionTaken ? `\n🛠️ "${newest.actionTaken}"` : "";
+    showToast("✅ Complaint resolved!"+actionText);
+    showNotifBadge(resolvedOnes.length-prevSeen);
+    lsRawSet("resolvedSeen_"+loggedEmail,resolvedOnes.length);
+  } else if(resolvedOnes.length>0){
+    showNotifBadge("✅");
+  }
+  renderMyComplaints(mine);
+}
+
+function showNotifBadge(c){
+  const b=document.getElementById("notifBadge");b.textContent=c;b.style.display="flex";
+}
+function hideNotifBadge(){
+  document.getElementById("notifBadge").style.display="none";
+}
+function showToast(msg){
+  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),4500);
+}
+
+function renderMyComplaints(complaints){
+  if(!complaints||!complaints.length){
+    document.getElementById("myComplaintsSection").style.display="none"; return;
+  }
+  document.getElementById("myComplaintsSection").style.display="block";
+  const list=document.getElementById("myComplaintsList");
+  list.innerHTML=[...complaints].reverse().map(c=>{
+    const isResolved=c.resolved||(c.status&&c.status.toLowerCase()==="resolved");
+    return `<div class="complaint-item ${isResolved?'resolved':'pending'}">
+      <div style="font-size:13px;color:#333;font-weight:600;">${c.text||'—'}</div>
+      <div class="ci-meta">🚌 ${c.bus||'—'} &nbsp;|&nbsp; 📅 ${c.date||'—'}</div>
+      <span class="ci-status ${isResolved?'resolved':'pending'}">${isResolved?'✅ Resolved':'⏳ Pending'}</span>
+      ${isResolved&&c.actionTaken?`
+        <div class="action-taken-card">
+          <div class="action-taken-header"><span>🛠️</span> Admin ka action:</div>
+          <div class="action-taken-text">${c.actionTaken}</div>
+          ${c.resolvedAt?`<div class="action-taken-date">✔ Resolved on ${c.resolvedAt}</div>`:''}
+        </div>`:''}
+    </div>`;
+  }).join("");
+}
+
+async function openNotice(){
+  const mine=await getMyComplaints();
+  const resolvedOnes=mine.filter(c=>c.resolved||(c.status&&c.status.toLowerCase()==="resolved"));
+  lsRawSet("resolvedSeen_"+loggedEmail,resolvedOnes.length);
+  hideNotifBadge();
+  const resolvedSection=document.getElementById("resolvedSection");
+  const resolvedList=document.getElementById("resolvedList");
+  if(resolvedOnes.length){
+    resolvedSection.style.display="block";
+    resolvedList.innerHTML=[...resolvedOnes].reverse().map(c=>`
+      <div class="resolved-banner">
+        <div class="rb-icon">✅</div>
+        <div class="rb-title">Complaint Resolved!</div>
+        <div style="font-size:12px;color:#555;text-align:center;margin-bottom:6px;">"${c.text?c.text.substring(0,60)+(c.text.length>60?'...':''):'—'}"</div>
+        ${c.actionTaken?`<div style="font-size:12px;font-weight:700;color:#0288d1;margin-bottom:4px;">🛠️ Admin ka action:</div><div class="rb-action">${c.actionTaken}</div>`:''}
+        ${c.resolvedAt?`<div class="rb-date">📅 ${c.resolvedAt}</div>`:''}
+      </div>`).join("");
+  } else { resolvedSection.style.display="none"; }
+  const notices=lsGet("busNotices",[]);
+  const studentBus=lsRaw("studentBus");
+  const filtered=notices.filter(n=>n.bus==="ALL"||n.bus===studentBus);
+  document.getElementById("noticeList").innerHTML=filtered.length
+    ?filtered.map(n=>`<p><b>${n.bus}</b><br>${n.text}<br><small>${n.date}</small></p>`).join("")
+    :"<p style='color:#aaa;font-size:13px;'>No notices yet</p>";
+  noticeModal.style.display="flex";
+}
+
+async function openComplaint(){
+  const mine=await getMyComplaints();
+  const prevWrap=document.getElementById("prevComplaintsWrap");
+  const prevList=document.getElementById("prevComplaintsList");
+  if(mine.length){
+    prevWrap.style.display="block";
+    prevList.innerHTML=[...mine].reverse().map(c=>{
+      const isResolved=c.resolved||(c.status&&c.status.toLowerCase()==="resolved");
+      return `<div class="complaint-item ${isResolved?'resolved':'pending'}">
+        <div style="font-size:12px;font-weight:600;">${c.text?c.text.substring(0,70)+(c.text.length>70?'...':''):'—'}</div>
+        <div class="ci-meta">🚌 ${c.bus||'—'} | 📅 ${c.date||'—'}</div>
+        <span class="ci-status ${isResolved?'resolved':'pending'}">${isResolved?'✅ Resolved':'⏳ Pending'}</span>
+        ${isResolved&&c.actionTaken?`<div style="background:#e1f5fe;border-radius:6px;padding:6px 8px;margin-top:6px;border-left:3px solid #29b6f6;font-size:12px;">🛠️ <b>Action:</b> ${c.actionTaken}</div>`:''}
+      </div>`;
+    }).join("");
+  } else { prevWrap.style.display="none"; }
+  complaintModal.style.display="flex";
+}
+
+async function submitComplaint(){
+  const name=document.getElementById("cName").value.trim();
+  const course=document.getElementById("cCourse").value.trim();
+  const bus=document.getElementById("cBus").value;
+  const text=document.getElementById("cText").value.trim();
+  if(!name||!course||!bus||!text){alert("Please fill all fields");return;}
+  const complaint={name,course,bus,text,status:"Pending",resolved:false,date:new Date().toLocaleString(),email:loggedEmail};
+  const arr=lsGet("busComplaints",[]);arr.push(complaint);lsSet("busComplaints",arr);
+  showToast("✅ Complaint submitted!\nAdmin will review and notify you.");
+  document.getElementById("cText").value="";document.getElementById("cBus").value="";
+  complaintModal.style.display="none";
+  await checkForResolvedComplaints();
+}
+
+/* ── PROFILE PHOTO ── */
+document.getElementById("photoInput").onchange=function(){
+  const file=this.files[0];if(!file)return;
+  document.getElementById("uploadStatus").textContent="Uploading…";
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const b64=e.target.result;
+    document.getElementById("profilePic").src=b64;
+    document.getElementById("busCardPhoto").src=b64;
+    lsRawSet("profilePhoto_"+loggedEmail,b64);
+    try{await fetch(`${API}/student/photo/${encodeURIComponent(loggedEmail)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({photo:b64})});
+      document.getElementById("uploadStatus").textContent="✅ Photo saved!";
+    }catch(e){ document.getElementById("uploadStatus").textContent="✅ Saved locally"; }
+    setTimeout(()=>document.getElementById("uploadStatus").textContent="",3000);
+  };
+  reader.readAsDataURL(file);this.value="";
+};
+
+/* ── SCREENSHOT PREVIEW ── */
+document.getElementById("screenshotInput").onchange=function(){
+  const reader=new FileReader();
+  reader.onload=function(e){const img=document.getElementById("previewImage");img.src=e.target.result;img.style.display="block";};
+  reader.readAsDataURL(this.files[0]);
+};
+
+/* ── SEAT BOOKING ── */
+let selectedSeat=null;
+function loadSeats(){
+  const container=document.getElementById("seats");container.innerHTML="";selectedSeat=null;
+  const info=document.getElementById("selectedSeatInfo");info.textContent="";info.classList.remove("show");
+  const bus=document.getElementById("sBus").value;
+  if(!bus){document.getElementById("seatLegend").style.display="none";return;}
+  document.getElementById("seatLegend").style.display="flex";
+  const bookedData=lsGet("busSeats_"+bus,[]);
+  let seatNumber=1;
+  for(let row=1;row<=10;row++){
+    for(let col=0;col<7;col++){
+      const cell=document.createElement("div");
+      if(col===3){cell.className="seat aisle";container.appendChild(cell);continue;}
+      cell.className="seat";const sn=seatNumber++;
+      const bookedInfo=bookedData.find(x=>x.seatNo===sn);
+      if(bookedInfo){cell.classList.add("booked");cell.innerHTML=sn+"<br><small>"+bookedInfo.name.split(" ")[0]+"</small>";cell.title="Booked: "+bookedInfo.name;}
+      else{cell.textContent=sn;cell.addEventListener("click",function(){
+        document.querySelectorAll(".seat.selected").forEach(s=>s.classList.remove("selected"));
+        cell.classList.add("selected");selectedSeat=sn;
+        const info=document.getElementById("selectedSeatInfo");
+        info.textContent="✅ Seat "+sn+" selected";info.classList.add("show");
+      });}
+      container.appendChild(cell);
+    }
+  }
+}
+async function confirmBooking(){
+  const name=document.getElementById("sName").value.trim(),course=document.getElementById("sCourse").value.trim(),id=document.getElementById("sId").value.trim(),bus=document.getElementById("sBus").value,ssFile=document.getElementById("screenshotInput").files[0];
+  if(!name||!course||!id||!bus){alert("Please fill all fields");return;}
+  if(!selectedSeat){alert("Please select a seat first");return;}
+  if(!ssFile){alert("Please upload payment screenshot");return;}
+  const key="busSeats_"+bus,data=lsGet(key,[]);
+  if(data.some(x=>x.seatNo===selectedSeat)){alert("This seat was just taken. Please choose another.");loadSeats();return;}
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    data.push({name,course,studentId:id,seatNo:selectedSeat,paymentScreenshot:e.target.result,date:new Date().toLocaleString()});
+    lsSet(key,data);lsRawSet("studentBus",bus);
+    try{await fetch(`${API}/student/seat/${encodeURIComponent(loggedEmail)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({bookedBus:bus,bookedSeat:selectedSeat})});}catch(e){}
+    STUDENT.bookedBus=bus;STUDENT.bookedSeat=selectedSeat;lsSet("studentProfile",STUDENT);renderProfile();
+    showToast("🎉 Seat "+selectedSeat+" on Route "+bus+" booked!");
+    seatModal.style.display="none";
+    ["sName","sCourse","sId"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("sBus").value="";selectedSeat=null;
+    document.getElementById("seats").innerHTML="";
+    document.getElementById("selectedSeatInfo").classList.remove("show");
+    document.getElementById("screenshotInput").value="";document.getElementById("previewImage").style.display="none";
+    document.getElementById("seatLegend").style.display="none";
+  };
+  reader.readAsDataURL(ssFile);
+}
+
+/* ── LOGOUT ── */
+function logout(){
+  ["loggedInEmail","studentProfile","txnId","gehu_txnId","studentBus"].forEach(k=>localStorage.removeItem(k));
+  window.location.href="login.html";
+}
+
+/* ── INIT ── */
+loadProfile();
+checkForResolvedComplaints();
+setInterval(()=>checkForResolvedComplaints(),30000);
+</script>
+</body>
+</html>
