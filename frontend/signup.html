@@ -158,7 +158,7 @@ async function signup() {
   console.log("SENDING 👉", data);
 
   try {
-    const res = await fetch("http://localhost:5000/signup/student", {
+    const res = await fetch("https://rachna-bhandari-github-io-3.onrender.com/signup/student", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
