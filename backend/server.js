@@ -59,6 +59,7 @@ const Booking = mongoose.model("Booking", BookingSchema);
 const ComplaintSchema = new mongoose.Schema({
   bus:        { type: String, default: "" },
   name:       { type: String, default: "Anonymous" },
+  email:      { type: String, default: "" },
   text:       { type: String, default: "" },
   date:       { type: String, default: "" },
   status:     { type: String, default: "pending" },    // "pending" | "resolved"
@@ -298,15 +299,28 @@ app.get("/complaints", async (req, res) => {
   }
 });
 
+// ── GET all complaints (filter by email) ──────────
+app.get("/complaints", async (req, res) => {
+  try {
+    const { email } = req.query;
+    const filter = email ? { email } : {};
+    const complaints = await Complaint.find(filter).sort({ createdAt: -1 });
+    res.json({ success: true, complaints });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 // ── POST a new complaint (student app se) ──────────
 app.post("/complaints", async (req, res) => {
   try {
-    const { bus, name, text, date } = req.body;
+    const { bus, name, text, date, email } = req.body;
     if (!text) return res.json({ success: false, message: "Complaint text required" });
 
     const complaint = new Complaint({
       bus: bus || "",
       name: name || "Anonymous",
+      email: email || "",
       text,
       date: date || new Date().toLocaleDateString(),
       status: "pending",
