@@ -479,7 +479,13 @@ async function loadProfile(){
   try{
     const res  = await fetch(`${API}/student/profile/${encodeURIComponent(loggedEmail)}`);
     const data = await res.json();
-    if(data.success && data.student){ STUDENT=data.student; lsSet("studentProfile",STUDENT); renderProfile(); }
+    if(data.success && data.student){ 
+      STUDENT=data.student; 
+      lsSet("studentProfile",STUDENT); 
+      // Sync txnId from DB to localStorage
+      if(STUDENT.txnId) lsRawSet("gehu_txnId", STUDENT.txnId);
+      renderProfile(); 
+    }
   }catch(e){}
 }
 
@@ -581,7 +587,7 @@ function clearTxError(){
   document.getElementById("txError").classList.remove("show");
 }
 
-function verifyAndProceed(){
+async function verifyAndProceed(){
   const entered = document.getElementById("txVerifyInput").value.trim();
   const saved   = getSavedTxId();
 
@@ -596,9 +602,27 @@ function verifyAndProceed(){
     document.getElementById("txError").classList.add("show");
     return;
   }
+  // Save to DB if not already saved there
+  if(isValidGEHUTxId(entered) && !STUDENT.txnId){
+    try {
+      await fetch(`${API}/student/txn/${encodeURIComponent(loggedEmail)}`,{
+        method:"PUT",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({txnId:entered})
+      });
+      STUDENT.txnId = entered;
+    } catch(e){}
+  }
   if(!saved && isValidGEHUTxId(entered)){
     // Allow if no saved TX (fallback: just format check)
     lsRawSet("gehu_txnId", entered);
+    // Save to DB so it persists across devices
+    try {
+      await fetch(`${API}/student/txn/${encodeURIComponent(loggedEmail)}`,{
+        method:"PUT",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({txnId:entered})
+      });
+      STUDENT.txnId = entered;
+    } catch(e){}
     renderTxCard();
   }
 
@@ -649,8 +673,13 @@ function showBusCard(){
    COMPLAINT SYSTEM
 ═══════════════════════════════════════ */
 async function getMyComplaints(){
-  const all = lsGet("busComplaints",[]);
-  return all.filter(c=>c.email===loggedEmail);
+  try {
+    const res = await fetch(`${API}/complaints?email=${encodeURIComponent(loggedEmail)}`);
+    const data = await res.json();
+    return data.success ? data.complaints : [];
+  } catch(e) {
+    return lsGet("busComplaints",[]).filter(c=>c.email===loggedEmail);
+  }
 }
 
 async function checkForResolvedComplaints(){
@@ -662,9 +691,11 @@ async function checkForResolvedComplaints(){
     const actionText = newest.actionTaken ? `\n🛠️ "${newest.actionTaken}"` : "";
     showToast("✅ Complaint resolved!"+actionText);
     showNotifBadge(resolvedOnes.length-prevSeen);
-    lsRawSet("resolvedSeen_"+loggedEmail,resolvedOnes.length);
+    lsRawSet("resolvedSeen_"+loggedEmail, resolvedOnes.length);
   } else if(resolvedOnes.length>0){
     showNotifBadge("✅");
+  } else {
+    document.getElementById("notifBadge").style.display="none";
   }
   renderMyComplaints(mine);
 }
@@ -720,11 +751,19 @@ async function openNotice(){
         ${c.resolvedAt?`<div class="rb-date">📅 ${c.resolvedAt}</div>`:''}
       </div>`).join("");
   } else { resolvedSection.style.display="none"; }
-  const notices=lsGet("busNotices",[]);
-  const studentBus=lsRaw("studentBus");
-  const filtered=notices.filter(n=>n.bus==="ALL"||n.bus===studentBus);
-  document.getElementById("noticeList").innerHTML=filtered.length
-    ?filtered.map(n=>`<p><b>${n.bus}</b><br>${n.text}<br><small>${n.date}</small></p>`).join("")
+  let notices=[];
+  try {
+    const studentBus=STUDENT.bookedBus||lsRaw("studentBus")||"";
+    const url=studentBus?`${API}/notices/${studentBus}`:`${API}/notices`;
+    const res=await fetch(url);
+    const data=await res.json();
+    if(data.success) notices=data.notices;
+  } catch(e) {
+    const studentBus=lsRaw("studentBus");
+    notices=lsGet("busNotices",[]).filter(n=>n.bus==="ALL"||n.bus===studentBus);
+  }
+  document.getElementById("noticeList").innerHTML=notices.length
+    ?notices.map(n=>`<p><b>${n.bus}</b><br>${n.text}<br><small>${n.date}</small></p>`).join("")
     :"<p style='color:#aaa;font-size:13px;'>No notices yet</p>";
   noticeModal.style.display="flex";
 }
@@ -754,9 +793,18 @@ async function submitComplaint(){
   const bus=document.getElementById("cBus").value;
   const text=document.getElementById("cText").value.trim();
   if(!name||!course||!bus||!text){alert("Please fill all fields");return;}
-  const complaint={name,course,bus,text,status:"Pending",resolved:false,date:new Date().toLocaleString(),email:loggedEmail};
-  const arr=lsGet("busComplaints",[]);arr.push(complaint);lsSet("busComplaints",arr);
-  showToast("✅ Complaint submitted!\nAdmin will review and notify you.");
+  try {
+    const res = await fetch(`${API}/complaints`, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name, course, bus, text, email:loggedEmail, date:new Date().toLocaleString()})
+    });
+    const data = await res.json();
+    if(data.success) showToast("✅ Complaint submitted!\nAdmin will review and notify you.");
+    else showToast("❌ Failed to submit. Try again.");
+  } catch(e) {
+    showToast("❌ Network error. Try again.");
+  }
   document.getElementById("cText").value="";document.getElementById("cBus").value="";
   complaintModal.style.display="none";
   await checkForResolvedComplaints();
@@ -772,7 +820,10 @@ document.getElementById("photoInput").onchange=function(){
     document.getElementById("profilePic").src=b64;
     document.getElementById("busCardPhoto").src=b64;
     lsRawSet("profilePhoto_"+loggedEmail,b64);
-    try{await fetch(`${API}/student/photo/${encodeURIComponent(loggedEmail)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({photo:b64})});
+    try{
+      await fetch(`${API}/student/photo/${encodeURIComponent(loggedEmail)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({photo:b64})});
+      STUDENT.photo = b64;
+      lsSet("studentProfile", STUDENT);
       document.getElementById("uploadStatus").textContent="✅ Photo saved!";
     }catch(e){ document.getElementById("uploadStatus").textContent="✅ Saved locally"; }
     setTimeout(()=>document.getElementById("uploadStatus").textContent="",3000);
@@ -789,13 +840,19 @@ document.getElementById("screenshotInput").onchange=function(){
 
 /* ── SEAT BOOKING ── */
 let selectedSeat=null;
-function loadSeats(){
-  const container=document.getElementById("seats");container.innerHTML="";selectedSeat=null;
+async function loadSeats(){
+  const container=document.getElementById("seats");container.innerHTML="<div style='padding:10px;color:#888;font-size:13px;'>Loading seats...</div>";selectedSeat=null;
   const info=document.getElementById("selectedSeatInfo");info.textContent="";info.classList.remove("show");
   const bus=document.getElementById("sBus").value;
-  if(!bus){document.getElementById("seatLegend").style.display="none";return;}
+  if(!bus){document.getElementById("seatLegend").style.display="none";container.innerHTML="";return;}
   document.getElementById("seatLegend").style.display="flex";
-  const bookedData=lsGet("busSeats_"+bus,[]);
+  let bookedData=[];
+  try {
+    const res=await fetch(`${API}/bus/bookings/${bus}`);
+    const data=await res.json();
+    if(data.success) bookedData=data.bookings;
+  } catch(e) { bookedData=lsGet("busSeats_"+bus,[]); }
+  container.innerHTML="";
   let seatNumber=1;
   for(let row=1;row<=10;row++){
     for(let col=0;col<7;col++){
@@ -819,13 +876,14 @@ async function confirmBooking(){
   if(!name||!course||!id||!bus){alert("Please fill all fields");return;}
   if(!selectedSeat){alert("Please select a seat first");return;}
   if(!ssFile){alert("Please upload payment screenshot");return;}
-  const key="busSeats_"+bus,data=lsGet(key,[]);
-  if(data.some(x=>x.seatNo===selectedSeat)){alert("This seat was just taken. Please choose another.");loadSeats();return;}
   const reader=new FileReader();
   reader.onload=async function(e){
-    data.push({name,course,studentId:id,seatNo:selectedSeat,paymentScreenshot:e.target.result,date:new Date().toLocaleString()});
-    lsSet(key,data);lsRawSet("studentBus",bus);
-    try{await fetch(`${API}/student/seat/${encodeURIComponent(loggedEmail)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({bookedBus:bus,bookedSeat:selectedSeat})});}catch(e){}
+    lsRawSet("studentBus",bus);
+    try{
+      const res=await fetch(`${API}/student/seat/${encodeURIComponent(loggedEmail)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({bookedBus:bus,bookedSeat:selectedSeat,name,course,rollNo:id,paymentScreenshot:e.target.result})});
+      const d=await res.json();
+      if(!d.success){alert("Booking failed: "+d.message);return;}
+    }catch(e){alert("Network error. Try again.");return;}
     STUDENT.bookedBus=bus;STUDENT.bookedSeat=selectedSeat;lsSet("studentProfile",STUDENT);renderProfile();
     showToast("🎉 Seat "+selectedSeat+" on Route "+bus+" booked!");
     seatModal.style.display="none";
