@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+body{margin:0;font-family:Arial,sans-serif;display:flex;height:100vh;background:url("./assets/photo.webp") center/cover no-repeat;}
+.sidebar{width:220px;background:rgba(31,41,55,0.95);color:#fff;padding:15px;overflow-y:auto;flex-shrink:0;}
+.sidebar h2{text-align:center;margin-bottom:15px}
+.bus{padding:10px;margin-bottom:6px;background:#374151;cursor:pointer;border-radius:4px}
+.bus:hover{background:#4b5563}
+.bus.active{background:#2193b0;}
+.main{flex:1;padding:20px;overflow-y:auto;}
+.tab-bar{display:flex;gap:8px;margin-bottom:18px;}
+.tab-btn{padding:8px 18px;border:none;border-radius:6px;background:#e0e0e0;cursor:pointer;font-size:14px;font-weight:600;transition:background 0.2s;}
+.tab-btn.active{background:#2193b0;color:#fff;}
+.print-btn,.pdf-btn{margin-bottom:15px;margin-right:8px;padding:8px 16px;background:#2193b0;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+.print-btn:hover,.pdf-btn:hover{background:#176b80}
+table{width:100%;border-collapse:collapse}
+th{background:#2193b0;color:#fff;padding:10px;text-align:left;}
+td{background:rgba(255,255,255,0.88);padding:9px 10px;border:1px solid #ccc;font-size:13px;}
+.done{color:green;font-weight:bold}
+#studentSheetSection{display:none;}
+#complaintSection{display:none;}
+#attendanceSection{display:none;}
+.sheet-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.search-input{padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:13px;width:220px;background:rgba(255,255,255,0.9);}
+.add-btn{padding:8px 16px;background:#43a047;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;}
+.add-btn:hover{background:#388e3c;}
+.action-btn{padding:4px 10px;border:none;border-radius:4px;cursor:pointer;font-size:12px;}
+.edit-btn{background:#ff9800;color:#fff;}
+.edit-btn:hover{background:#e65100;}
+.del-btn{background:#e53935;color:#fff;margin-left:4px;}
+.del-btn:hover{background:#b71c1c;}
+.resolve-btn{background:#43a047;color:#fff;margin-left:4px;}
+.resolve-btn:hover{background:#388e3c;}
+.student-count{font-size:13px;color:#fff;background:rgba(0,0,0,0.35);padding:4px 12px;border-radius:12px;}
+.photo-thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #ddd;}
+.icon{position:fixed;right:25px;width:55px;height:55px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;cursor:pointer;box-shadow:0 6px 15px rgba(0,0,0,.3)}
+#noticeIcon{bottom:20px;background:#ff9800}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000}
+.modal-content{background:#fff;padding:24px;border-radius:12px;width:460px;max-height:88vh;overflow-y:auto;position:relative;}
+.modal-content h3{margin:0 0 16px;}
+.close-modal{position:absolute;top:12px;right:16px;font-size:22px;cursor:pointer;color:#555;background:none;border:none;}
+.close-modal:hover{color:#f44336;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-grid .full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group label{font-size:12px;font-weight:600;color:#555;}
+.form-group input,.form-group select{padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;outline:none;}
+.form-group input:focus{border-color:#2193b0;}
+.save-btn{width:100%;padding:11px;background:#2193b0;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;}
+.save-btn:hover{background:#176b80;}
+textarea,select,button{width:100%;margin-top:10px;padding:8px}
+button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointer}
+.payment-ss{width:80px;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;}
+@media print{.icon,.print-btn,.pdf-btn,.tab-bar,.sheet-toolbar,.att-toggle-btns{display:none;}}
+#ssModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);justify-content:center;align-items:center;z-index:2000;}
+#ssModal img{max-width:90%;max-height:90%;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+#ssModal span{position:absolute;top:20px;right:30px;font-size:30px;color:#fff;cursor:pointer;font-weight:bold;}
+.complaint-card{background:rgba(255,255,255,0.92);border-radius:10px;padding:16px;margin-bottom:12px;border-left:5px solid #e63946;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.complaint-card.resolved{border-left-color:#43a047;opacity:0.75;}
+.complaint-meta{font-size:12px;color:#888;margin-bottom:6px;}
+.complaint-text{font-size:14px;color:#222;margin-bottom:10px;}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700;}
+.badge-pending{background:#ffecb3;color:#e65100;}
+.badge-resolved{background:#c8e6c9;color:#2e7d32;}
+.att-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+.att-header h2{margin:0;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);}
+.att-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.att-date-input{padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:13px;background:rgba(255,255,255,0.9);cursor:pointer;}
+.att-filter-select{padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:13px;background:rgba(255,255,255,0.9);color:#333;width:auto;margin-top:0;}
+.att-summary{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+.att-stat{padding:10px 20px;border-radius:10px;text-align:center;font-weight:700;font-size:15px;min-width:100px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.att-stat.total{background:#fff;color:#2193b0;}
+.att-stat.present{background:#c8e6c9;color:#2e7d32;}
+.att-stat.absent{background:#ffcdd2;color:#c62828;}
+.att-stat.pct{background:#fff9c4;color:#f57f17;}
+.att-table-wrap{overflow-x:auto;}
+.att-table{width:100%;border-collapse:collapse;}
+.att-table th{background:#2193b0;color:#fff;padding:10px;text-align:left;}
+.att-table td{background:rgba(255,255,255,0.9);padding:9px 10px;border:1px solid #ccc;font-size:13px;vertical-align:middle;}
+.att-toggle-btns{display:flex;gap:6px;}
+.att-btn{padding:5px 14px;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s;}
+.att-btn.present{background:#e8f5e9;color:#43a047;border:2px solid #43a047;}
+.att-btn.present.active{background:#43a047;color:#fff;}
+.att-btn.absent{background:#ffebee;color:#e53935;border:2px solid #e53935;}
+.att-btn.absent.active{background:#e53935;color:#fff;}
+.att-save-bar{position:sticky;bottom:0;background:rgba(31,41,55,0.95);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-radius:12px;margin-top:16px;box-shadow:0 -4px 15px rgba(0,0,0,.3);}
+.att-save-bar span{color:#fff;font-size:14px;}
+.att-save-btn{padding:10px 28px;background:#43a047;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;width:auto;margin-top:0;}
+.att-save-btn:hover{background:#388e3c;}
+.att-mark-all-btns{display:flex;gap:8px;}
+.mark-all-btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;width:auto;margin-top:0;}
+.mark-all-present{background:#43a047;color:#fff;}
+.mark-all-present:hover{background:#2e7d32;}
+.mark-all-absent{background:#e53935;color:#fff;}
+.mark-all-absent:hover{background:#c62828;}
+.att-report-card{background:rgba(255,255,255,0.92);border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.att-report-name{font-weight:700;font-size:14px;color:#222;}
+.att-report-meta{font-size:12px;color:#888;margin-top:2px;}
+.att-report-bar-wrap{flex:1;min-width:150px;max-width:200px;}
+.att-report-bar-bg{background:#eee;border-radius:10px;height:10px;overflow:hidden;}
+.att-report-bar-fill{height:10px;border-radius:10px;background:#43a047;}
+.att-report-pct{font-size:13px;font-weight:700;margin-left:8px;}
+.view-tab-bar{display:flex;gap:6px;margin-bottom:16px;}
+.view-tab-btn{padding:7px 18px;border:none;border-radius:6px;background:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;font-weight:600;transition:background 0.2s;color:#333;}
+.view-tab-btn.active{background:#2193b0;color:#fff;}
+.no-data-msg{color:#fff;text-align:center;margin-top:60px;font-size:16px;text-shadow:0 1px 3px rgba(0,0,0,0.6);}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>🚌 Buses</h2>
+  <div id="busList"></div>
+</div>
+
+<div class="main" id="dashboardContent">
+  <div class="tab-bar" style="align-items:center;">
+    <button class="tab-btn active" onclick="showTab('bus')">🚌 Bus Bookings</button>
+    <button class="tab-btn" onclick="showTab('students')">👨‍🎓 Student Sheet</button>
+    <button class="tab-btn" onclick="showTab('attendance')">📋 Attendance</button>
+    <button class="tab-btn" onclick="showTab('complaints')">📢 Complaints</button>
+    <div id="serverStatus" style="margin-left:auto;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;background:#e0e0e0;color:#555;">⏳ Checking...</div>
+  </div>
+
+  <!-- BUS SECTION -->
+  <div id="busSection">
+    <h2 id="busTitle">ADMIN DASHBOARD</h2>
+    <button class="print-btn" onclick="window.print()">⬇️ Download / Print</button>
+    <button class="pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>Course</th><th>Student ID</th>
+          <th>Seat No</th><th>Payment</th><th>Screenshot</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- STUDENT SHEET -->
+  <div id="studentSheetSection">
+    <div class="sheet-toolbar">
+      <h2 style="margin:0;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">👨‍🎓 Student Master Sheet</h2>
+      <span class="student-count" id="studentCount">0 Students</span>
+      <input class="search-input" type="text" id="searchInput" placeholder="🔍 Search by name, email, roll..." oninput="renderStudentTable()">
+      <button class="add-btn" onclick="openAddModal()">+ Add Student</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Photo</th><th>Name</th><th>Roll No</th><th>Email</th><th>Phone</th><th>Course</th><th>DOB</th><th>Bus</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="studentTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div id="attendanceSection">
+    <div class="att-header">
+      <h2>📋 Daily Attendance</h2>
+      <span class="student-count" id="attStudentCount">0 Students</span>
+    </div>
+    <div class="view-tab-bar">
+      <button class="view-tab-btn active" onclick="switchAttView('mark')">✏️ Mark Attendance</button>
+      <button class="view-tab-btn" onclick="switchAttView('report')">📊 Attendance Report</button>
+      <button class="view-tab-btn" onclick="switchAttView('history')">🗓️ Date History</button>
+    </div>
+    <div id="attMarkView">
+      <div class="att-controls">
+        <label style="color:#fff;font-weight:600;font-size:13px;">📅 Date:</label>
+        <input type="date" class="att-date-input" id="attDate" onchange="loadAttendanceForDate()">
+        <select class="att-filter-select" id="attBusFilter" onchange="renderAttendanceTable()">
+          <option value="all">All Students</option>
+          <option value="none">Not Booked</option>
+        </select>
+        <input class="search-input" type="text" id="attSearchInput" placeholder="🔍 Search student..." oninput="renderAttendanceTable()" style="width:180px;">
+        <div class="att-mark-all-btns">
+          <button class="mark-all-btn mark-all-present" onclick="markAll('P')">✅ All Present</button>
+          <button class="mark-all-btn mark-all-absent" onclick="markAll('A')">❌ All Absent</button>
+        </div>
+      </div>
+      <div class="att-summary" id="attSummary"></div>
+      <div class="att-table-wrap">
+        <table class="att-table">
+          <thead><tr><th>#</th><th>Photo</th><th>Name</th><th>Roll No</th><th>Course</th><th>Bus</th><th>Mark Attendance</th></tr></thead>
+          <tbody id="attTableBody"></tbody>
+        </table>
+      </div>
+      <div class="att-save-bar">
+        <span id="attSaveStatus">👆 Mark attendance and save</span>
+        <button class="att-save-btn" onclick="saveAttendance()">💾 Save Attendance</button>
+      </div>
+    </div>
+    <div id="attReportView" style="display:none;">
+      <div class="att-controls">
+        <label style="color:#fff;font-weight:600;font-size:13px;">📅 From:</label>
+        <input type="date" class="att-date-input" id="reportFrom">
+        <label style="color:#fff;font-weight:600;font-size:13px;">To:</label>
+        <input type="date" class="att-date-input" id="reportTo">
+        <select class="att-filter-select" id="reportBusFilter"><option value="all">All Students</option></select>
+        <button class="add-btn" onclick="generateReport()" style="margin-top:0;">📊 Generate</button>
+      </div>
+      <div id="attReportContent"></div>
+    </div>
+    <div id="attHistoryView" style="display:none;">
+      <div class="att-controls">
+        <label style="color:#fff;font-weight:600;font-size:13px;">📅 Select Date:</label>
+        <input type="date" class="att-date-input" id="histDate" onchange="loadHistoryDate()">
+      </div>
+      <div class="att-summary" id="histSummary"></div>
+      <div class="att-table-wrap">
+        <table class="att-table">
+          <thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Course</th><th>Bus</th><th>Status</th></tr></thead>
+          <tbody id="histTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLAINTS -->
+  <div id="complaintSection">
+    <div class="sheet-toolbar">
+      <h2 style="margin:0;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">📢 Bus Complaints</h2>
+      <span class="student-count" id="complaintCount">0 Complaints</span>
+      <select id="filterComplaint" onchange="renderComplaints()" style="width:160px;margin-top:0;padding:8px 10px;border-radius:6px;font-size:13px;border:1px solid #ccc;background:rgba(255,255,255,0.9);color:#333;">
+        <option value="all">All Buses</option>
+      </select>
+    </div>
+    <div id="complaintList"></div>
+  </div>
+</div>
+
+<div class="icon" id="noticeIcon">🔔</div>
+
+<!-- NOTICE MODAL -->
+<div class="modal" id="noticeModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="noticeModal.style.display='none'">&times;</button>
+    <h3>📢 Bus Notice</h3>
+    <select id="noticeBus"><option value="">Select Bus</option><option value="ALL">All Buses</option></select>
+    <textarea id="noticeText" placeholder="Enter notice..."></textarea>
+    <button id="saveNoticeBtn" style="margin-top:10px;">Send Notice</button>
+  </div>
+</div>
+
+<!-- ADD/EDIT STUDENT MODAL -->
+<div class="modal" id="studentFormModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="studentFormModal.style.display='none'">&times;</button>
+    <h3 id="formTitle">➕ Add Student</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Full Name *</label><input id="fName" placeholder="Rachna Bhandari"></div>
+      <div class="form-group"><label>Roll No *</label><input id="fRoll" placeholder="24012610"></div>
+      <div class="form-group full"><label>Email *</label><input id="fEmail" type="email" placeholder="rachna@example.com"></div>
+      <div class="form-group"><label>Password *</label><input id="fPassword" type="text" placeholder="rachna@123"></div>
+      <div class="form-group"><label>Phone</label><input id="fPhone" placeholder="7302544751"></div>
+      <div class="form-group"><label>DOB</label><input id="fDob" type="date"></div>
+      <div class="form-group"><label>Course</label>
+        <select id="fCourse">
+          <option value="">Select Course</option>
+          <option>B.Tech</option><option>BCA</option><option>MBA</option><option>BAJMC</option>
+          <option>MCA</option><option>B.Com</option><option>BBA</option><option>M.Tech</option><option>BSc</option>
+        </select>
+      </div>
+      <div class="form-group"><label>College</label><input id="fCollege" value="GEHU – Haldwani"></div>
+    </div>
+    <button class="save-btn" onclick="saveStudent()">💾 Save Student</button>
+  </div>
+</div>
+
+<!-- FULLSCREEN SCREENSHOT MODAL -->
+<div id="ssModal">
+  <span onclick="closeSSModal()">&times;</span>
+  <img id="ssFullImg" src="">
+</div>
+
+<script>
+const API = "https://rachna-bhandari-github-io-3.onrender.com";
+
+/* ══════════════════════════════════════════════════════════════════
+   PERMANENT STORAGE — localStorage
+   
+   ✅ FIX: localStorage KABHI delete nahi hota jab tak:
+      1. User manually "Clear Site Data" na kare
+      2. Browser cache manually clear na kare
+      3. Incognito/Private mode use na kare (tab close par delete hoga)
+   
+   ❌ Pehle ki problem:
+      - Bookings sirf backend se load ho rahe the
+      - Backend offline hone par data memory mein tha
+      - Page reload par fresh fetch hota tha, localStorage mein
+        save nahi ho raha tha properly
+   
+   ✅ Naya fix:
+      - Har booking/complaint change hone par TURANT localStorage mein save
+      - Backend se aaya data bhi localStorage mein save (cache)
+      - Backend offline ho to localStorage se load
+      - localStorage ALWAYS primary source of truth hai
+══════════════════════════════════════════════════════════════════ */
+
+// ── localStorage helpers ──────────────────────────────────────────
+function lsSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch(e) {
+    console.error('localStorage save failed:', e);
+    return false;
+  }
+}
+
+function lsGet(key, fallback = null) {
+  try {
+    const v = localStorage.getItem(key);
+    if (v !== null) return JSON.parse(v);
+  } catch(e) {
+    console.error('localStorage read failed:', e);
+  }
+  return fallback;
+}
+
+function lsDel(key) {
+  try { localStorage.removeItem(key); } catch(e) {}
+}
+
+/* ── DOM ELEMENTS ── */
+const busList    = document.getElementById("busList");
+const busTitle   = document.getElementById("busTitle");
+const tableBody  = document.getElementById("tableBody");
+const noticeBus  = document.getElementById("noticeBus");
+const noticeModal= document.getElementById("noticeModal");
+const ssModal    = document.getElementById("ssModal");
+const ssFullImg  = document.getElementById("ssFullImg");
+const studentFormModal = document.getElementById("studentFormModal");
+
+let editingEmail   = null;
+let allComplaints  = [];
+let allStudents    = [];
+let currentBus     = null;
+let currentBusData = [];
+
+let todayAttendance = {};
+let currentAttDate  = "";
+
+/* ══════════════════════════════════════════════════════════════════
+   SIDEBAR — BUS LIST BUILD KARO
+══════════════════════════════════════════════════════════════════ */
+for(let i = 65; i <= 84; i++){
+  const b = String.fromCharCode(i);
+  const d = document.createElement("div");
+  d.className = "bus";
+  d.textContent = "Bus " + b;
+  d.onclick = () => {
+    document.querySelectorAll(".bus").forEach(x => x.classList.remove("active"));
+    d.classList.add("active");
+    loadBus(b);
+  };
+  busList.appendChild(d);
+
+  // Dropdown options add karo
+  [noticeBus, document.getElementById("filterComplaint")].forEach(sel => {
+    sel.appendChild(Object.assign(document.createElement("option"), {value: b, textContent: "Bus " + b}));
+  });
+  ["attBusFilter", "reportBusFilter"].forEach(selId => {
+    const o = document.createElement("option");
+    o.value = b; o.textContent = "Bus " + b;
+    document.getElementById(selId).appendChild(o);
+  });
+}
+
+// Last selected bus restore karo page reload ke baad bhi
+const lastBus = lsGet("adminLastBus", null);
+if(lastBus){
+  const el = [...document.querySelectorAll(".bus")].find(d => d.textContent === "Bus " + lastBus);
+  if(el) el.classList.add("active");
+  loadBus(lastBus);
+}
+
+window.addEventListener("load", () => checkServer());
+
+/* ══════════════════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════════════════ */
+function showTab(tab){
+  document.getElementById("busSection").style.display          = tab === "bus"        ? "block" : "none";
+  document.getElementById("studentSheetSection").style.display = tab === "students"   ? "block" : "none";
+  document.getElementById("attendanceSection").style.display   = tab === "attendance" ? "block" : "none";
+  document.getElementById("complaintSection").style.display    = tab === "complaints" ? "block" : "none";
+  document.querySelectorAll(".tab-btn").forEach((b,i) =>
+    b.classList.toggle("active",
+      (i===0&&tab==="bus")||(i===1&&tab==="students")||(i===2&&tab==="attendance")||(i===3&&tab==="complaints")
+    )
+  );
+  if(tab === "students")   loadStudentSheet();
+  if(tab === "complaints") loadComplaints();
+  if(tab === "attendance") initAttendance();
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   BUS BOOKINGS — PERMANENT LOCALSTORAGE FIX
+   
+   KEY FIX: 
+   1. Backend se data aaye to localStorage mein SAVE karo
+   2. Student app se booking aaye to localStorage mein DIRECTLY save karo
+   3. loadBus() mein PEHLE localStorage check karo, fir backend
+   
+   Student app ke saath sync karne ke liye:
+   Student app ko bhi same localStorage key use karni chahiye:
+   "busSeats_A", "busSeats_B" etc. (same browser mein ho to kaam karega)
+   Alag browser/device ke liye backend zaruri hai.
+══════════════════════════════════════════════════════════════════ */
+async function loadBus(bus){
+  currentBus = bus;
+  lsSet("adminLastBus", bus);
+  busTitle.textContent = "Bus " + bus + " — Bookings";
+  tableBody.innerHTML = `<tr><td colspan="8" align="center">⏳ Loading...</td></tr>`;
+
+  let data = [];
+
+  // STEP 1: Pehle localStorage se load karo (instant, always works)
+  const cached = lsGet("busSeats_" + bus, null);
+  if(cached && Array.isArray(cached)){
+    data = cached;
+  }
+
+  // STEP 2: Backend se bhi try karo (fresh data ke liye)
+  try {
+    const online = await checkServer();
+    if(online){
+      const res = await fetch(`${API}/bus/bookings/${bus}`, {signal: AbortSignal.timeout(5000)});
+      const json = await res.json();
+      if(json.success && Array.isArray(json.bookings)){
+        // ✅ Backend se aaya data localStorage mein save karo
+        // Merge karo: localStorage data + backend data (duplicates hata ke)
+        data = mergeBookings(cached || [], json.bookings);
+        lsSet("busSeats_" + bus, data);
+      }
+    }
+  } catch(e) {
+    // Backend offline — localStorage data use karo (already loaded above)
+    console.log("Backend offline, using localStorage data for Bus", bus);
+  }
+
+  currentBusData = data;
+  renderBusTable(data, bus);
+}
+
+// Bookings merge karo (duplicates hata ke) — studentId + seatNo se identify karo
+function mergeBookings(local, backend){
+  const merged = [...backend]; // Backend data primary
+  local.forEach(l => {
+    const exists = merged.some(b =>
+      String(b.studentId) === String(l.studentId) &&
+      String(b.seatNo) === String(l.seatNo)
+    );
+    if(!exists) merged.push(l); // Sirf naye local entries add karo
+  });
+  return merged;
+}
+
+function renderBusTable(data, bus){
+  tableBody.innerHTML = "";
+  if(!data || !data.length){
+    tableBody.innerHTML = `<tr><td colspan="8" align="center" style="color:#888;">No bookings found for Bus ${bus}</td></tr>`;
+    return;
+  }
+  data.forEach((s, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${escHtml(s.name||'—')}</td>
+      <td>${escHtml(s.course||'—')}</td>
+      <td>${escHtml(String(s.studentId||'—'))}</td>
+      <td><b>${escHtml(String(s.seatNo||'—'))}</b></td>
+      <td class="done">✅ Done</td>
+      <td>${s.paymentScreenshot ? `<img src="${s.paymentScreenshot}" class="payment-ss" data-idx="${idx}">` : '—'}</td>
+      <td>
+        <button class="action-btn del-btn" data-idx="${idx}">🗑️ Remove</button>
+      </td>`;
+    const ssImg = tr.querySelector('.payment-ss');
+    if(ssImg) ssImg.addEventListener('click', () => openSSModal(s.paymentScreenshot));
+    tr.querySelector('.del-btn').addEventListener('click', () => deleteBooking(idx));
+    tableBody.appendChild(tr);
+  });
+}
+
+async function deleteBooking(idx){
+  const booking = currentBusData[idx];
+  if(!booking){ alert("⚠️ Booking not found. Please refresh."); return; }
+
+  const confirmed = confirm(
+    `Remove this booking?\n\n` +
+    `Student: ${booking.name||'—'}\n` +
+    `Seat No: ${booking.seatNo}\n` +
+    `ID: ${booking.studentId||'—'}\n` +
+    `Bus: ${currentBus}\n\n` +
+    `This cannot be undone.`
+  );
+  if(!confirmed) return;
+
+  // ✅ FIX: PEHLE localStorage se delete karo (reliable)
+  let freshData = lsGet("busSeats_" + currentBus, []);
+  
+  // Index se delete karo
+  const newData = freshData.filter((s, i) => {
+    if(freshData.length === currentBusData.length && i === idx) return false;
+    return true;
+  });
+
+  // Fallback: studentId + seatNo + name se match karo
+  let finalData = newData;
+  if(newData.length === freshData.length){
+    finalData = freshData.filter(s =>
+      !(String(s.studentId)===String(booking.studentId) &&
+        String(s.seatNo)===String(booking.seatNo))
+    );
+  }
+
+  // ✅ localStorage mein IMMEDIATELY save karo
+  lsSet("busSeats_" + currentBus, finalData);
+  currentBusData = finalData;
+
+  // Backend sync karo bhi (silently)
+  syncBookingDelete(currentBus, booking);
+
+  alert(`✅ Booking removed: ${booking.name} — Seat ${booking.seatNo}`);
+  renderBusTable(finalData, currentBus);
+}
+
+// Backend sync (optional, silently fails if offline)
+async function syncBookingDelete(bus, booking){
+  try {
+    await fetch(`${API}/bus/bookings/${bus}/delete`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({studentId: booking.studentId, seatNo: booking.seatNo})
+    });
+  } catch(e) {}
+}
+
+function escHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SERVER STATUS CHECK
+══════════════════════════════════════════════════════════════════ */
+async function checkServer(){
+  try{
+    const res = await fetch(`${API}/admin/students`, {signal: AbortSignal.timeout(3000)});
+    const data = await res.json();
+    if(data.success !== undefined){
+      document.getElementById("serverStatus").style.cssText = "background:#c8e6c9;color:#2e7d32;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;";
+      document.getElementById("serverStatus").textContent = "✅ Server Connected";
+      return true;
+    }
+  } catch(e) {}
+  document.getElementById("serverStatus").style.cssText = "background:#ffcdd2;color:#c62828;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;";
+  document.getElementById("serverStatus").textContent = "❌ Server Offline";
+  return false;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   COMPLAINTS — PERMANENT LOCALSTORAGE FIX
+   
+   KEY FIX:
+   1. loadComplaints() mein PEHLE localStorage se load karo
+   2. Backend se aaye data ko localStorage mein save karo (cache)
+   3. Resolve/Delete turant localStorage mein save ho
+   4. Student app bhi same key "busComplaints" use kare
+══════════════════════════════════════════════════════════════════ */
+async function loadComplaints(){
+  // STEP 1: Pehle localStorage se load karo (instant)
+  const cached = lsGet("busComplaints", []);
+  allComplaints = Array.isArray(cached) ? cached : [];
+
+  // STEP 2: Backend se fresh data try karo
+  try {
+    const online = await checkServer();
+    if(online){
+      const res = await fetch(`${API}/complaints`, {signal: AbortSignal.timeout(5000)});
+      const json = await res.json();
+      if(json.success && Array.isArray(json.complaints)){
+        // Backend data ko localStorage ke saath merge karo
+        allComplaints = mergeComplaints(allComplaints, json.complaints);
+        // ✅ Merged data localStorage mein save karo
+        lsSet("busComplaints", allComplaints);
+      }
+    }
+  } catch(e) {
+    console.log("Backend offline, using cached complaints from localStorage");
+  }
+
+  document.getElementById("complaintCount").textContent = allComplaints.length + " Complaints";
+  renderComplaints();
+}
+
+// Complaints merge karo (ID se identify karo)
+function mergeComplaints(local, backend){
+  const merged = [...backend];
+  local.forEach(l => {
+    const exists = merged.some(b =>
+      (b._id && l._id && b._id === l._id) ||
+      (b.date === l.date && b.name === l.name && b.text === l.text)
+    );
+    if(!exists) merged.push(l);
+  });
+  return merged;
+}
+
+function renderComplaints(){
+  const filterBus = document.getElementById("filterComplaint").value;
+  const list = document.getElementById("complaintList");
+
+  const indexedFiltered = allComplaints
+    .map((c, idx) => ({c, idx}))
+    .filter(({c}) => filterBus === "all" || c.bus === filterBus)
+    .reverse();
+
+  if(!indexedFiltered.length){
+    list.innerHTML = `<div style="color:#fff;text-align:center;margin-top:40px;font-size:16px;">Koi complaint nahi mili.</div>`;
+    return;
+  }
+
+  list.innerHTML = "";
+  indexedFiltered.forEach(({c, idx}) => {
+    const div = document.createElement("div");
+    div.className = "complaint-card" + (c.resolved ? " resolved" : "");
+    div.innerHTML = `
+      <div class="complaint-meta">
+        🚌 <b>Bus ${escHtml(c.bus||'—')}</b> &nbsp;|&nbsp;
+        👤 ${escHtml(c.name||'Anonymous')} &nbsp;|&nbsp;
+        📅 ${escHtml(c.date||'—')} &nbsp;|&nbsp;
+        <span class="badge ${c.resolved?'badge-resolved':'badge-pending'}">${c.resolved?'✅ Resolved':'⏳ Pending'}</span>
+      </div>
+      <div class="complaint-text">📝 ${escHtml(c.text||'—')}</div>
+      ${c.resolved && c.actionTaken
+        ? `<div style="background:#e8f5e9;border-radius:6px;padding:8px 10px;border-left:3px solid #43a047;font-size:13px;margin-bottom:8px;">
+             🛠️ <b>Action taken:</b> ${escHtml(c.actionTaken)}<br>
+             <small style="color:#888;">${c.resolvedAt||''}</small>
+           </div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">
+        ${!c.resolved ? `<div>
+          <button class="action-btn resolve-btn" data-confirm-idx="${idx}">✅ Mark Resolved</button>
+          <div style="margin-top:8px;">
+            <input type="text" placeholder="Action taken (optional)..." style="width:280px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;" data-action-idx="${idx}">
+            <button style="width:auto;margin-top:4px;padding:5px 12px;background:#43a047;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;" data-saveresolve-idx="${idx}">Confirm Resolve</button>
+          </div>
+        </div>` : ''}
+        <button class="action-btn del-btn" data-del-idx="${idx}">🗑️ Delete</button>
+      </div>`;
+
+    const saveResolveBtn = div.querySelector(`[data-saveresolve-idx="${idx}"]`);
+    if(saveResolveBtn){
+      saveResolveBtn.addEventListener('click', () => {
+        const actionInput = div.querySelector(`[data-action-idx="${idx}"]`);
+        resolveComplaint(idx, actionInput ? actionInput.value.trim() : '');
+      });
+    }
+    const delBtn = div.querySelector(`[data-del-idx="${idx}"]`);
+    if(delBtn) delBtn.addEventListener('click', () => deleteComplaint(idx));
+
+    list.appendChild(div);
+  });
+}
+
+async function resolveComplaint(idx, actionTaken){
+  allComplaints[idx].resolved    = true;
+  allComplaints[idx].status      = "resolved";
+  allComplaints[idx].resolvedAt  = new Date().toLocaleString();
+  allComplaints[idx].actionTaken = actionTaken || "";
+  await saveComplaints(); // ✅ localStorage + backend dono mein save
+  renderComplaints();
+}
+
+async function deleteComplaint(idx){
+  if(!confirm("Delete this complaint permanently?")) return;
+  allComplaints.splice(idx, 1);
+  await saveComplaints(); // ✅ localStorage + backend dono mein save
+  document.getElementById("complaintCount").textContent = allComplaints.length + " Complaints";
+  renderComplaints();
+}
+
+// ✅ KEY FIX: PEHLE localStorage mein save, fir backend sync
+async function saveComplaints(){
+  // 1. TURANT localStorage mein save karo
+  lsSet("busComplaints", allComplaints);
+
+  // 2. Background mein backend sync karo (fail hone par koi problem nahi)
+  try {
+    await fetch(`${API}/complaints/save`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({complaints: allComplaints})
+    });
+  } catch(e) {
+    console.log("Backend sync failed (offline) - data localStorage mein saved hai");
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   STUDENT SHEET
+══════════════════════════════════════════════════════════════════ */
+async function loadStudentSheet(){
+  // Pehle cache se load karo
+  allStudents = lsGet("adminStudentCache", []);
+
+  try {
+    const online = await checkServer();
+    if(online){
+      const res = await fetch(`${API}/admin/students`);
+      const data = await res.json();
+      if(data.success){
+        allStudents = data.students;
+        lsSet("adminStudentCache", allStudents); // Cache update karo
+      }
+    }
+  } catch(e) {
+    console.log("Using cached student data");
+  }
+  renderStudentTable();
+}
+
+function renderStudentTable(){
+  const q = (document.getElementById("searchInput").value || "").toLowerCase();
+  const filtered = allStudents.filter(s =>
+    (s.name||"").toLowerCase().includes(q) ||
+    (s.email||"").toLowerCase().includes(q) ||
+    (s.rollNo||"").toLowerCase().includes(q) ||
+    (s.course||"").toLowerCase().includes(q)
+  );
+  document.getElementById("studentCount").textContent = allStudents.length + " Students";
+  const tbody = document.getElementById("studentTableBody");
+  if(!filtered.length){
+    tbody.innerHTML = `<tr><td colspan="9" align="center">No students found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = "";
+  filtered.forEach(s => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${s.photo
+        ? `<img src="${s.photo}" class="photo-thumb">`
+        : `<div style="width:36px;height:36px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>`}</td>
+      <td><b>${escHtml(s.name||'—')}</b></td>
+      <td>${escHtml(s.rollNo||'—')}</td>
+      <td style="font-size:12px;">${escHtml(s.email||'—')}</td>
+      <td>${escHtml(s.phone||'—')}</td>
+      <td>${escHtml(s.course||'—')}</td>
+      <td>${escHtml(s.dob||'—')}</td>
+      <td>${s.bookedBus
+        ? `Bus ${escHtml(s.bookedBus)} · Seat ${escHtml(String(s.bookedSeat||'?'))}`
+        : '<span style="color:#aaa;">Not booked</span>'}</td>
+      <td>
+        <button class="action-btn edit-btn" data-email="${escHtml(s.email)}">✏️ Edit</button>
+        <button class="action-btn del-btn" data-email="${escHtml(s.email)}">🗑️</button>
+      </td>`;
+    tr.querySelector('.edit-btn').addEventListener('click', () => openEditModal(s.email));
+    tr.querySelector('.del-btn').addEventListener('click', () => deleteStudent(s.email));
+    tbody.appendChild(tr);
+  });
+}
+
+function openAddModal(){
+  editingEmail = null;
+  document.getElementById("formTitle").textContent = "➕ Add Student";
+  ["fName","fRoll","fEmail","fPassword","fPhone","fDob","fCourse"].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = "";
+    el.disabled = false;
+  });
+  document.getElementById("fCollege").value = "GEHU – Haldwani";
+  studentFormModal.style.display = "flex";
+}
+
+function openEditModal(email){
+  const s = allStudents.find(x => x.email === email);
+  if(!s) return;
+  editingEmail = email;
+  document.getElementById("formTitle").textContent = "✏️ Edit Student";
+  document.getElementById("fName").value     = s.name||"";
+  document.getElementById("fRoll").value     = s.rollNo||"";
+  document.getElementById("fEmail").value    = s.email||"";
+  document.getElementById("fEmail").disabled = true;
+  document.getElementById("fPassword").value = s.password||"";
+  document.getElementById("fPhone").value    = s.phone||"";
+  document.getElementById("fDob").value      = s.dob||"";
+  document.getElementById("fCourse").value   = s.course||"";
+  document.getElementById("fCollege").value  = s.college||"GEHU – Haldwani";
+  studentFormModal.style.display = "flex";
+}
+
+async function saveStudent(){
+  const name     = document.getElementById("fName").value.trim();
+  const rollNo   = document.getElementById("fRoll").value.trim();
+  const email    = document.getElementById("fEmail").value.trim();
+  const password = document.getElementById("fPassword").value.trim();
+  const phone    = document.getElementById("fPhone").value.trim();
+  const dob      = document.getElementById("fDob").value.trim();
+  const course   = document.getElementById("fCourse").value;
+  const college  = document.getElementById("fCollege").value.trim();
+
+  if(!name || !email || !password){ alert("Name, Email and Password are required!"); return; }
+  const payload = {name, rollNo, email, password, phone, dob, course, college};
+
+  try {
+    let res, data;
+    if(!editingEmail){
+      res = await fetch(`${API}/admin/students/add`, {
+        method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch(`${API}/admin/students/${encodeURIComponent(editingEmail)}`, {
+        method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload)
+      });
+    }
+    data = await res.json();
+    if(data.success){
+      alert(editingEmail ? "✅ Student updated!" : "✅ Student added!");
+      studentFormModal.style.display = "none";
+      loadStudentSheet();
+    } else {
+      alert("❌ " + (data.message||"Error"));
+    }
+  } catch(e) {
+    alert("❌ Server not running!\n\nPlease start: node server.js");
+  }
+}
+
+async function deleteStudent(email){
+  if(!confirm(`Delete student: ${email}?`)) return;
+  try {
+    const res = await fetch(`${API}/admin/students/${encodeURIComponent(email)}`, {method: "DELETE"});
+    const data = await res.json();
+    if(data.success){ alert("🗑️ Student deleted"); loadStudentSheet(); }
+    else alert("❌ " + data.message);
+  } catch(e) {
+    alert("❌ Server not reachable.");
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ATTENDANCE — localStorage mein permanent save
+══════════════════════════════════════════════════════════════════ */
+function getTodayStr(){ return new Date().toISOString().split("T")[0]; }
+
+async function initAttendance(){
+  if(!allStudents.length){
+    allStudents = lsGet("adminStudentCache", []);
+    try {
+      const online = await checkServer();
+      if(online){
+        const res = await fetch(`${API}/admin/students`);
+        const data = await res.json();
+        if(data.success){ allStudents = data.students; lsSet("adminStudentCache", allStudents); }
+      }
+    } catch(e) {}
+  }
+  document.getElementById("attStudentCount").textContent = allStudents.length + " Students";
+  const todayStr = getTodayStr();
+  document.getElementById("attDate").value  = todayStr;
+  document.getElementById("histDate").value = todayStr;
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 6);
+  document.getElementById("reportFrom").value = weekAgo.toISOString().split("T")[0];
+  document.getElementById("reportTo").value   = todayStr;
+  await loadAttendanceForDate();
+}
+
+async function loadAttendanceForDate(){
+  currentAttDate = document.getElementById("attDate").value;
+  if(!currentAttDate) return;
+  const saved = lsGet("attendance_" + currentAttDate, {});
+  todayAttendance = {...saved};
+  renderAttendanceTable();
+}
+
+function getFilteredStudents(){
+  const busFilter = document.getElementById("attBusFilter").value;
+  const q = (document.getElementById("attSearchInput").value || "").toLowerCase();
+  return allStudents.filter(s => {
+    const nameMatch = (s.name||"").toLowerCase().includes(q) ||
+                      (s.rollNo||"").toLowerCase().includes(q) ||
+                      (s.email||"").toLowerCase().includes(q);
+    if(!nameMatch) return false;
+    if(busFilter === "all") return true;
+    if(busFilter === "none") return !s.bookedBus;
+    return s.bookedBus === busFilter;
+  });
+}
+
+function renderAttendanceTable(){
+  const filtered = getFilteredStudents();
+  const tbody = document.getElementById("attTableBody");
+  if(!filtered.length){
+    tbody.innerHTML = `<tr><td colspan="7" align="center">No students found</td></tr>`;
+    updateAttSummary(); return;
+  }
+  tbody.innerHTML = "";
+  filtered.forEach((s, i) => {
+    const status = todayAttendance[s.email] || "";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${s.photo
+        ? `<img src="${s.photo}" class="photo-thumb">`
+        : `<div style="width:32px;height:32px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;">👤</div>`}</td>
+      <td><b>${escHtml(s.name||'—')}</b><br><span style="font-size:11px;color:#888;">${escHtml(s.email||'')}</span></td>
+      <td>${escHtml(s.rollNo||'—')}</td>
+      <td>${escHtml(s.course||'—')}</td>
+      <td>${s.bookedBus ? `🚌 Bus ${escHtml(s.bookedBus)}` : '<span style="color:#aaa;">—</span>'}</td>
+      <td>
+        <div class="att-toggle-btns">
+          <button class="att-btn present ${status==='P'?'active':''}" data-email="${escHtml(s.email)}" data-status="P">✅ Present</button>
+          <button class="att-btn absent ${status==='A'?'active':''}" data-email="${escHtml(s.email)}" data-status="A">❌ Absent</button>
+        </div>
+      </td>`;
+    tr.querySelectorAll('.att-btn').forEach(btn => {
+      btn.addEventListener('click', () => setAttendance(s.email, btn.dataset.status));
+    });
+    tbody.appendChild(tr);
+  });
+  updateAttSummary();
+}
+
+function setAttendance(email, status){
+  if(todayAttendance[email] === status){ delete todayAttendance[email]; }
+  else { todayAttendance[email] = status; }
+  renderAttendanceTable();
+  const marked = Object.keys(todayAttendance).length;
+  document.getElementById("attSaveStatus").textContent = `✏️ ${marked}/${allStudents.length} marked — don't forget to save!`;
+}
+
+function markAll(status){
+  getFilteredStudents().forEach(s => { todayAttendance[s.email] = status; });
+  renderAttendanceTable();
+  const marked = Object.keys(todayAttendance).length;
+  document.getElementById("attSaveStatus").textContent = `✏️ ${marked}/${allStudents.length} marked — don't forget to save!`;
+}
+
+function updateAttSummary(){
+  const total   = allStudents.length;
+  const present = Object.values(todayAttendance).filter(v => v==='P').length;
+  const absent  = Object.values(todayAttendance).filter(v => v==='A').length;
+  const pct     = total ? Math.round((present/total)*100) : 0;
+  document.getElementById("attSummary").innerHTML = `
+    <div class="att-stat total">👥 Total<br>${total}</div>
+    <div class="att-stat present">✅ Present<br>${present}</div>
+    <div class="att-stat absent">❌ Absent<br>${absent}</div>
+    <div class="att-stat pct">📊 ${pct}%</div>
+    <div class="att-stat" style="background:#e8eaf6;color:#3949ab;">⬜ Unmarked<br>${total-present-absent}</div>`;
+}
+
+async function saveAttendance(){
+  if(!currentAttDate){ alert("Select a date first!"); return; }
+  // ✅ localStorage mein save
+  lsSet("attendance_" + currentAttDate, todayAttendance);
+  let attDates = lsGet("attendanceDates", []);
+  if(!attDates.includes(currentAttDate)){
+    attDates.push(currentAttDate);
+    attDates.sort();
+    lsSet("attendanceDates", attDates);
+  }
+  const marked  = Object.keys(todayAttendance).length;
+  const present = Object.values(todayAttendance).filter(v => v==='P').length;
+  document.getElementById("attSaveStatus").textContent = `✅ Saved! ${present} present, ${marked-present} absent — ${new Date().toLocaleTimeString()}`;
+  alert(`✅ Attendance saved for ${currentAttDate}!\nPresent: ${present} | Absent: ${marked-present} | Unmarked: ${allStudents.length-marked}`);
+}
+
+function switchAttView(view){
+  document.getElementById("attMarkView").style.display    = view==="mark"    ? "block" : "none";
+  document.getElementById("attReportView").style.display  = view==="report"  ? "block" : "none";
+  document.getElementById("attHistoryView").style.display = view==="history" ? "block" : "none";
+  document.querySelectorAll(".view-tab-btn").forEach((b,i) =>
+    b.classList.toggle("active", (i===0&&view==="mark")||(i===1&&view==="report")||(i===2&&view==="history"))
+  );
+}
+
+async function loadHistoryDate(){
+  const date = document.getElementById("histDate").value;
+  if(!date) return;
+  const data  = lsGet("attendance_" + date, {});
+  const tbody = document.getElementById("histTableBody");
+  if(!allStudents.length){
+    tbody.innerHTML = `<tr><td colspan="6" align="center">No students loaded</td></tr>`;
+    return;
+  }
+  const present = Object.values(data).filter(v=>v==='P').length;
+  const absent  = Object.values(data).filter(v=>v==='A').length;
+  const total   = allStudents.length;
+  const pct     = total ? Math.round((present/total)*100) : 0;
+  document.getElementById("histSummary").innerHTML = `
+    <div class="att-stat total">👥 Total<br>${total}</div>
+    <div class="att-stat present">✅ Present<br>${present}</div>
+    <div class="att-stat absent">❌ Absent<br>${absent}</div>
+    <div class="att-stat pct">📊 ${pct}%</div>`;
+  if(!Object.keys(data).length){
+    tbody.innerHTML = `<tr><td colspan="6" align="center" style="color:#888;">No attendance recorded for this date</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = allStudents.map((s,i) => {
+    const status = data[s.email] || "";
+    const statusHtml = status==="P"
+      ? `<span style="color:#43a047;font-weight:700;">✅ Present</span>`
+      : status==="A"
+        ? `<span style="color:#e53935;font-weight:700;">❌ Absent</span>`
+        : `<span style="color:#bdbdbd;">— Not marked</span>`;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><b>${escHtml(s.name||'—')}</b></td>
+      <td>${escHtml(s.rollNo||'—')}</td>
+      <td>${escHtml(s.course||'—')}</td>
+      <td>${s.bookedBus ? `🚌 Bus ${escHtml(s.bookedBus)}` : '—'}</td>
+      <td>${statusHtml}</td>
+    </tr>`;
+  }).join("");
+}
+
+async function generateReport(){
+  const from = document.getElementById("reportFrom").value;
+  const to   = document.getElementById("reportTo").value;
+  const busF = document.getElementById("reportBusFilter").value;
+  if(!from || !to){ alert("Select date range!"); return; }
+  if(from > to){ alert("From date must be before To date!"); return; }
+
+  const dates = [];
+  let cur = new Date(from);
+  const end = new Date(to);
+  while(cur <= end){ dates.push(cur.toISOString().split("T")[0]); cur.setDate(cur.getDate()+1); }
+
+  const attData = {};
+  for(const d of dates){ attData[d] = lsGet("attendance_" + d, {}); }
+
+  let students = allStudents;
+  if(busF === "none") students = allStudents.filter(s => !s.bookedBus);
+  else if(busF !== "all") students = allStudents.filter(s => s.bookedBus === busF);
+
+  if(!students.length){
+    document.getElementById("attReportContent").innerHTML = `<div class="no-data-msg">No students found</div>`;
+    return;
+  }
+
+  const rows = students.map(s => {
+    let present=0, absent=0, total=0;
+    dates.forEach(d => {
+      const v = attData[d][s.email];
+      if(v==="P"){ present++; total++; }
+      else if(v==="A"){ absent++; total++; }
+    });
+    const pct = total ? Math.round((present/total)*100) : null;
+    return {s, present, absent, total, pct};
+  });
+  rows.sort((a,b) => (b.pct||0) - (a.pct||0));
+
+  document.getElementById("attReportContent").innerHTML = `
+    <div class="att-summary" style="margin-bottom:16px;">
+      <div class="att-stat total">📅 Days<br>${dates.length}</div>
+      <div class="att-stat present">✅ Avg Present<br>${rows.length ? Math.round(rows.reduce((a,r)=>a+(r.present||0),0)/rows.length*10)/10 : 0}</div>
+      <div class="att-stat pct">📊 Avg %<br>${rows.filter(r=>r.pct!==null).length ? Math.round(rows.filter(r=>r.pct!==null).reduce((a,r)=>a+(r.pct||0),0)/rows.filter(r=>r.pct!==null).length) : 0}%</div>
+    </div>
+    ${rows.map((r,i) => `
+      <div class="att-report-card">
+        <div>
+          <div class="att-report-name">${i+1}. ${escHtml(r.s.name||'—')} <span style="font-size:12px;color:#888;">${escHtml(r.s.rollNo||'')}</span></div>
+          <div class="att-report-meta">${escHtml(r.s.course||'—')} | ${r.s.bookedBus?'Bus '+escHtml(r.s.bookedBus):'No bus'} | ✅ ${r.present} | ❌ ${r.absent} | 📅 ${r.total} days</div>
+        </div>
+        <div class="att-report-bar-wrap">
+          <div style="display:flex;align-items:center;">
+            <div class="att-report-bar-bg" style="flex:1;">
+              <div class="att-report-bar-fill" style="width:${r.pct||0}%;background:${(r.pct||0)>=75?'#43a047':(r.pct||0)>=50?'#ff9800':'#e53935'};"></div>
+            </div>
+            <span class="att-report-pct" style="color:${(r.pct||0)>=75?'#2e7d32':(r.pct||0)>=50?'#e65100':'#c62828'};">${r.pct!==null?r.pct+'%':'N/A'}</span>
+          </div>
+          ${(r.pct||0)<75 ? `<div style="font-size:11px;color:#e53935;margin-top:3px;">⚠️ Below 75%</div>` : ''}
+        </div>
+      </div>`).join("")}`;
+}
+
+/* ── NOTICE ── */
+document.getElementById("noticeIcon").onclick = () => noticeModal.style.display = "flex";
+document.getElementById("saveNoticeBtn").onclick = async () => {
+  if(!noticeBus.value || !document.getElementById("noticeText").value.trim()){
+    alert("Fill all fields"); return;
+  }
+  let notices = lsGet("busNotices", []);
+  notices.push({bus: noticeBus.value, text: document.getElementById("noticeText").value, date: new Date().toLocaleString()});
+  lsSet("busNotices", notices);
+  try {
+    await fetch(`${API}/notices/save`, {
+      method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({notices})
+    });
+  } catch(e) {}
+  alert("Notice sent ✅");
+  noticeModal.style.display = "none";
+  document.getElementById("noticeText").value = "";
+};
+
+/* ── PDF DOWNLOAD ── */
+function downloadPDF(){
+  html2pdf().from(document.getElementById("dashboardContent")).set({
+    margin: 0.5,
+    filename: "Bus_Admin_Report.pdf",
+    html2canvas: {scale: 2},
+    jsPDF: {unit: "in", format: "letter", orientation: "landscape"}
+  }).save();
+}
+
+/* ── SCREENSHOT MODAL ── */
+function openSSModal(src){ ssFullImg.src = src; ssModal.style.display = "flex"; }
+function closeSSModal(){ ssModal.style.display = "none"; }
+
+/* ══════════════════════════════════════════════════════════════════
+   STUDENT APP SYNC — Same Browser ke andar
+   
+   Agar student app aur admin app same browser mein khule hain to
+   storage event se real-time updates milenge.
+   Agar alag device pe hain to backend zaruri hai.
+══════════════════════════════════════════════════════════════════ */
+window.addEventListener("storage", (e) => {
+  // Koi bhi busSeats_ key change hogi to refresh karo
+  if(e.key && e.key.startsWith("busSeats_") && currentBus){
+    const changedBus = e.key.replace("busSeats_", "");
+    if(changedBus === currentBus){
+      console.log("Bus", currentBus, "data changed from another tab, refreshing...");
+      loadBus(currentBus);
+    }
+  }
+  // Complaints change hoti hain to refresh karo
+  if(e.key === "busComplaints"){
+    const complaintSection = document.getElementById("complaintSection");
+    if(complaintSection.style.display !== "none"){
+      allComplaints = lsGet("busComplaints", []);
+      document.getElementById("complaintCount").textContent = allComplaints.length + " Complaints";
+      renderComplaints();
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Bus Pass – GEHU Haldwani</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:#f0f4f8;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:30px 15px 90px;
+}
+
+/* ══ CARD ══ */
+.card-wrap{width:100%;max-width:620px;}
+
+.card{
+  background:#fff;
+  border:2px solid #bbb;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,0.13);
+}
+
+/* ── HEADER: Logo left + Title center ── */
+.card-header{
+  display:flex;
+  align-items:center;
+  padding:14px 20px 12px;
+  border-bottom:3px solid #c0392b;
+  background:#fff;
+  gap:14px;
+}
+
+.logo-block{
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+
+/* Actual image logo */
+.logo-img{
+  height:72px;width:auto;
+  object-fit:contain;display:block;
+}
+
+/* Text logo shown when image fails */
+.logo-text{display:none;flex-direction:column;line-height:1.2;}
+.logo-text .l1{font-size:18px;font-weight:800;color:#c0392b;font-style:italic;}
+.logo-text .l2{font-size:18px;font-weight:800;color:#c0392b;font-style:italic;}
+.logo-text .l3{font-size:8px;color:#777;letter-spacing:.4px;text-transform:uppercase;margin-top:2px;}
+
+/* Gear icon beside text */
+.logo-gear{
+  width:44px;height:44px;
+  border:3px solid #c0392b;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  font-size:20px;color:#c0392b;flex-shrink:0;
+}
+
+.header-divider{width:1px;height:54px;background:#ddd;flex-shrink:0;}
+
+.header-title{
+  flex:1;text-align:center;padding:0 8px;
+}
+.header-title h1{
+  font-size:21px;font-weight:800;color:#111;
+  text-decoration:underline;text-underline-offset:5px;
+  letter-spacing:-.2px;
+}
+.header-title p{font-size:10.5px;color:#777;margin-top:4px;font-weight:500;}
+
+/* ── BODY: Table left, Photo right ── */
+.card-body{
+  display:flex;gap:0;
+  padding:18px 22px 14px;
+}
+
+.card-details{flex:1;min-width:0;}
+
+.dtable{width:100%;border-collapse:collapse;}
+.dtable tr td{
+  padding:8px 2px;
+  border-bottom:1px solid #efefef;
+  font-size:13.5px;vertical-align:middle;
+}
+.dtable tr:last-child td{border-bottom:none;}
+.dtable .dl{font-weight:700;color:#111;width:44%;padding-right:6px;white-space:nowrap;}
+.dtable .dc{color:#888;width:3%;text-align:center;font-weight:500;}
+.dtable .dv{color:#222;font-weight:500;}
+
+.badge-bus{
+  display:inline-block;background:#dbeafe;color:#1d4ed8;
+  padding:2px 10px;border-radius:10px;font-size:12px;font-weight:700;
+}
+.badge-seat{
+  display:inline-block;background:#dcfce7;color:#166534;
+  padding:2px 10px;border-radius:10px;font-size:12px;font-weight:700;
+}
+.badge-validity{
+  display:inline-block;background:#fef9c3;color:#854d0e;
+  padding:2px 10px;border-radius:10px;font-size:12px;font-weight:600;
+}
+.badge-unpaid{
+  display:inline-block;background:#fee2e2;color:#991b1b;
+  padding:2px 10px;border-radius:10px;font-size:12px;font-weight:600;
+}
+
+/* Photo column */
+.photo-col{
+  flex-shrink:0;
+  padding-left:18px;margin-left:18px;
+  border-left:1px dashed #ccc;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+.photo-box{
+  width:92px;height:112px;
+  border:2.5px solid #2aa4db;border-radius:6px;
+  overflow:hidden;background:#e8f4f8;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:border-color .2s;
+  flex-direction:column;gap:3px;text-align:center;
+}
+.photo-box:hover{border-color:#1565c0;}
+.photo-box img{width:100%;height:100%;object-fit:cover;display:block;}
+.ph-icon{font-size:22px;}
+.ph-hint{font-size:9px;color:#aaa;line-height:1.4;}
+.photo-label{font-size:9px;color:#bbb;margin-top:2px;}
+
+/* ── TX STRIP ── */
+.tx-strip{
+  margin:0 22px 14px;
+  background:#f8faff;border:1px solid #dbe4ff;
+  border-radius:8px;padding:8px 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.tx-lbl{font-size:9px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.tx-val{font-family:'Courier New',monospace;font-size:10px;color:#1d4ed8;word-break:break-all;line-height:1.5;}
+.tx-btn{
+  background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;
+  font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;
+  cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s;flex-shrink:0;
+}
+.tx-btn:hover{background:#dbeafe;}
+
+/* ── SIGNATURES ── */
+.card-sig{
+  display:flex;justify-content:space-between;
+  padding:14px 22px 20px;
+  border-top:1px solid #eee;gap:50px;
+}
+.sig-block{flex:1;}
+.sig-lbl{font-size:12.5px;font-weight:700;color:#111;display:block;margin-bottom:26px;}
+.sig-line{border-top:1.5px solid #222;width:85%;}
+
+/* ── FOOTER ── */
+.card-footer{
+  background:#f7f8fa;border-top:1px solid #e5e7eb;
+  padding:7px 22px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ft-univ{font-size:9.5px;color:#999;font-weight:600;}
+.ft-id{font-family:'Courier New',monospace;font-size:9.5px;color:#bbb;}
+
+/* ══ BUTTONS ══ */
+.action-btns{
+  display:flex;gap:10px;
+  margin-top:20px;width:100%;max-width:620px;
+}
+.action-btns button{
+  flex:1;padding:13px;border:none;border-radius:10px;
+  font-family:inherit;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+#backBtn{background:#e2e8f0;color:#475569;border:1px solid #cbd5e1;}
+#backBtn:hover{background:#cbd5e1;}
+#printBtn{
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  color:#fff;box-shadow:0 4px 14px rgba(37,99,235,0.3);
+}
+#printBtn:hover{transform:translateY(-1px);}
+
+/* ══ PRINT ══ */
+@media print{
+  body{background:#fff;padding:0;}
+  .action-btns,#photoUploadInput{display:none!important;}
+  .card-wrap{max-width:100%;}
+  .card{box-shadow:none;border:2px solid #555;border-radius:0;}
+  .card-header{border-bottom:3px solid #c0392b!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .photo-label{display:none;}
+  .badge-bus,.badge-seat,.badge-validity,.badge-unpaid{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
+</head>
+<body>
+
+<div class="card-wrap">
+<div class="card" id="busCard">
+
+  <!-- ── HEADER ── -->
+  <div class="card-header">
+
+    <div class="logo-block">
+      <!-- Try real image first -->
+      <img src="assets/695528154.jpg" class="logo-img" id="logoImg" alt="GEHU Logo"
+           onerror="this.style.display='none';
+                    document.getElementById('logoText').style.display='flex';
+                    document.getElementById('logoGear').style.display='flex';">
+      <!-- Fallback text logo -->
+      <div class="logo-text" id="logoText">
+        <span class="l1">Graphic Era</span>
+        <span class="l2">Hill University</span>
+        <span class="l3">Dehradun · Bhimtal · Haldwani</span>
+      </div>
+      <div class="logo-gear" id="logoGear">⚙</div>
+    </div>
+
+    <div class="header-divider"></div>
+
+    <div class="header-title">
+      <h1>Student Bus Pass</h1>
+      <p>Graphic Era Hill University — Haldwani Campus</p>
+    </div>
+
+  </div>
+
+  <!-- ── BODY ── -->
+  <div class="card-body">
+
+    <div class="card-details">
+      <table class="dtable">
+        <tr>
+          <td class="dl">Student Name</td>
+          <td class="dc">:</td>
+          <td class="dv" id="studentName">—</td>
+        </tr>
+        <tr>
+          <td class="dl">Roll Number</td>
+          <td class="dc">:</td>
+          <td class="dv" id="rollNo">—</td>
+        </tr>
+        <tr>
+          <td class="dl">Course &amp; Year</td>
+          <td class="dc">:</td>
+          <td class="dv" id="courseYear">—</td>
+        </tr>
+        <tr>
+          <td class="dl">Department</td>
+          <td class="dc">:</td>
+          <td class="dv" id="department">—</td>
+        </tr>
+        <tr>
+          <td class="dl">Bus Route / Stop</td>
+          <td class="dc">:</td>
+          <td class="dv" id="busRoute">—</td>
+        </tr>
+        <tr>
+          <td class="dl">Bus Number</td>
+          <td class="dc">:</td>
+          <td class="dv" id="busNumber">—</td>
+        </tr>
+        <tr>
+          <td class="dl">Validity</td>
+          <td class="dc">:</td>
+          <td class="dv" id="validity">—</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Photo -->
+    <div class="photo-col">
+      <div class="photo-box" id="photoBox" onclick="photoUploadInput.click()" title="Click to upload photo">
+        <span class="ph-icon">📷</span>
+        <span class="ph-hint">Click to<br>add photo</span>
+      </div>
+      <div class="photo-label">Tap to change</div>
+    </div>
+
+  </div>
+
+  <!-- TX ID (only if payment done) -->
+  <div class="tx-strip" id="txStrip" style="display:none;">
+    <div>
+      <div class="tx-lbl">Transaction ID</div>
+      <div class="tx-val" id="txDisplay">—</div>
+    </div>
+    <button class="tx-btn" onclick="copyTx()">Copy</button>
+  </div>
+
+  <!-- ── SIGNATURES ── -->
+  <div class="card-sig">
+    <div class="sig-block">
+      <span class="sig-lbl">Authorized Signature:</span>
+      <div class="sig-line"></div>
+    </div>
+    <div class="sig-block">
+      <span class="sig-lbl">Student Signature:</span>
+      <div class="sig-line"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="card-footer">
+    <span class="ft-univ">GEHU Haldwani • Bus Transport Division</span>
+    <span class="ft-id" id="footerRoll"></span>
+  </div>
+
+</div>
+</div>
+
+<!-- Buttons -->
+<div class="action-btns">
+  <button id="backBtn" onclick="window.history.back()">← Back</button>
+  <button id="printBtn" onclick="window.print()">🖨️ Print Bus Card</button>
+</div>
+
+<input type="file" id="photoUploadInput" accept="image/*" style="display:none;">
+
+<script>
+const API = "https://rachna-bhandari-github-io-3.onrender.com";
+
+function lsGet(k,fb){ try{const v=localStorage.getItem(k);return v===null?fb:JSON.parse(v);}catch(e){return fb;} }
+function lsRaw(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsRawSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+
+/* ── AUTH GUARD ── */
+const loggedEmail = lsRaw("loggedInEmail");
+if(!loggedEmail){ window.location.replace("login.html"); }
+
+/* ── FILL CARD ── */
+function fillCard(s){
+  document.getElementById("studentName").textContent = s.name  || "—";
+  document.getElementById("rollNo").textContent      = s.rollNo || "—";
+  document.getElementById("footerRoll").textContent  = s.rollNo || "";
+  document.getElementById("courseYear").textContent  = s.course  || "—";
+  document.getElementById("department").textContent  = s.college || "GEHU – Haldwani";
+
+  if(s.bookedBus){
+    document.getElementById("busRoute").innerHTML  =
+      `<span class="badge-bus">Route ${s.bookedBus}</span>`;
+    document.getElementById("busNumber").innerHTML =
+      `<span class="badge-seat">GEHU-${s.bookedBus} &nbsp;·&nbsp; Seat ${s.bookedSeat||"—"}</span>`;
+  } else {
+    document.getElementById("busRoute").innerHTML  = `<span class="badge-unpaid">Not Booked</span>`;
+    document.getElementById("busNumber").textContent = "—";
+  }
+
+  // Auto validity based on academic year
+  const now = new Date();
+  const yr  = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear()-1;
+  document.getElementById("validity").innerHTML =
+    `<span class="badge-validity">01/07/${yr} – 30/06/${yr+1}</span>`;
+
+  // Photo
+  const photo = s.photo || lsRaw("profilePhoto_"+loggedEmail);
+  if(photo){
+    document.getElementById("photoBox").innerHTML = `<img src="${photo}" alt="Photo">`;
+  }
+
+  // TX ID strip
+  const txId = lsRaw("gehu_txnId") || lsRaw("txnId") || s.txnId;
+  if(txId){
+    document.getElementById("txDisplay").textContent = txId;
+    document.getElementById("txStrip").style.display = "flex";
+  }
+}
+
+function copyTx(){
+  const val = document.getElementById("txDisplay").textContent;
+  navigator.clipboard.writeText(val).then(()=>{
+    const btn = document.querySelector(".tx-btn");
+    btn.textContent="✅ Copied";btn.style.background="#d1fae5";
+    setTimeout(()=>{btn.textContent="Copy";btn.style.background="";},2000);
+  });
+}
+
+/* ── LOAD ── */
+async function loadCard(){
+  const cached = lsGet("studentProfile",null);
+  if(cached && cached.email===loggedEmail) fillCard(cached);
+  try{
+    const res  = await fetch(`${API}/student/profile/${encodeURIComponent(loggedEmail)}`);
+    const data = await res.json();
+    if(data.success && data.student){
+      fillCard(data.student);
+      lsRawSet("studentProfile", JSON.stringify(data.student));
+    }
+  }catch(e){}
+}
+
+loadCard();
+
+/* ── PHOTO UPLOAD ── */
+document.getElementById("photoUploadInput").onchange = function(){
+  const file=this.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const b64=e.target.result;
+    document.getElementById("photoBox").innerHTML=`<img src="${b64}" alt="Photo">`;
+    lsRawSet("profilePhoto_"+loggedEmail, b64);
+    try{
+      await fetch(`${API}/student/photo/${encodeURIComponent(loggedEmail)}`,{
+        method:"PUT",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({photo:b64})
+      });
+    }catch(e){}
+  };
+  reader.readAsDataURL(file);
+  this.value="";
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEHU Haldwani – Bus Fee Payment</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--card:#161b22;--card2:#1c2230;--border:#2a3347;--blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--text:#e6edf3;--muted:#8b949e;--accent:#f0b429;--red:#ef4444;}
+body{background:var(--bg);font-family:'Sora',sans-serif;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:24px 16px;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;width:460px;padding:32px 28px;position:relative;box-shadow:0 0 0 1px rgba(59,130,246,.08),0 24px 48px rgba(0,0,0,.4);}
+.card::before{content:'';position:absolute;top:0;left:40px;right:40px;height:2px;background:linear-gradient(90deg,transparent,var(--blue),var(--blue2),transparent);border-radius:2px;}
+.header{text-align:center;margin-bottom:24px;}
+.header .icon{font-size:38px;display:block;margin-bottom:8px;filter:drop-shadow(0 0 14px rgba(59,130,246,.6));}
+.header h2{color:var(--text);font-size:20px;font-weight:700;letter-spacing:-.3px;}
+.header p{color:var(--muted);font-size:12px;margin-top:4px;}
+.row{margin-bottom:14px;}
+label{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;}
+select{width:100%;padding:11px 36px 11px 14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Sora',sans-serif;font-size:14px;transition:border-color .2s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+select:focus{outline:none;border-color:var(--blue);}
+select option{background:#1c2230;}
+.stop-info{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px;font-size:12px;color:var(--muted);display:none;max-height:220px;overflow-y:auto;}
+.stop-info.show{display:block;}
+.stop-info::-webkit-scrollbar{width:4px;}
+.stop-info::-webkit-scrollbar-track{background:transparent;}
+.stop-info::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.stop-item{padding:5px 0;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);align-items:center;gap:8px;}
+.stop-item:last-child{border:none;}
+.sname{color:var(--text);flex:1;}
+.stime{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue2);white-space:nowrap;}
+.bus-meta{font-size:11px;color:var(--blue2);margin-bottom:8px;font-weight:600;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.amount-row{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;margin:16px 0;}
+.amount-label{color:var(--muted);font-size:13px;}
+.amount-value{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:var(--accent);letter-spacing:-1px;transition:all .3s;}
+.qr-wrap{display:flex;justify-content:center;margin:16px 0;}
+.qr-box{background:#fff;padding:10px;border-radius:12px;display:inline-block;box-shadow:0 0 0 4px rgba(59,130,246,.15),0 0 24px rgba(59,130,246,.1);}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:22px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:14px;position:relative;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:rgba(59,130,246,.05);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:28px;margin-bottom:6px;}
+.upload-text{color:var(--muted);font-size:13px;}
+.upload-text span{color:var(--blue);font-weight:600;}
+.upload-hint{font-size:11px;color:var(--muted);margin-top:3px;}
+.preview-wrap{position:relative;display:none;margin-bottom:14px;}
+.preview-wrap.show{display:block;}
+.preview-img{width:100%;border-radius:10px;border:1px solid var(--border);max-height:200px;object-fit:contain;background:#000;}
+.remove-img{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.75);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.pay-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue),#1d4ed8);color:#fff;border:none;border-radius:12px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.3px;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 24px rgba(59,130,246,.35);}
+.pay-btn:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(59,130,246,.45);}
+.pay-btn:active{transform:translateY(0);}
+.pay-btn::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .4s;}
+.pay-btn:hover::after{left:150%;}
+.tx-section{margin-top:16px;display:none;}
+.tx-section.show{display:block;}
+.success-badge{display:flex;align-items:center;gap:8px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);font-weight:600;}
+.tx-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;}
+.tx-box{background:var(--card2);border:1px solid var(--green);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.tx-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);word-break:break-all;flex:1;}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'Sora',sans-serif;}
+.copy-btn:hover{border-color:var(--green);color:var(--green);}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.section-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:10px;}
+.err{color:var(--red);font-size:12px;margin-top:6px;display:none;padding:8px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;}
+.err.show{display:block;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <span class="icon">🚌</span>
+    <h2>GEHU Haldwani Campus</h2>
+    <p>Bus Fee Payment Portal &bull; Semester 2025</p>
+  </div>
+
+  <div class="row">
+    <label>Select Bus Route</label>
+    <select id="routeSel" onchange="onRouteChange()">
+      <option value="">— Select Route —</option>
+    </select>
+  </div>
+
+  <div class="stop-info" id="stopInfo"></div>
+
+  <div class="row" id="feeZoneRow" style="display:none">
+    <label>Your Boarding Stop / Fee Zone</label>
+    <select id="feeZoneSel" onchange="onFeeChange()">
+      <option value="">— Select Your Stop —</option>
+    </select>
+  </div>
+
+  <div class="amount-row">
+    <span class="amount-label">Fee Per Semester</span>
+    <span class="amount-value" id="amount">₹ —</span>
+  </div>
+
+  <hr class="divider">
+  <div class="section-title">Scan &amp; Pay via UPI</div>
+  <div class="qr-wrap"><div class="qr-box" id="qr"></div></div>
+
+  <hr class="divider">
+  <div class="section-title">Upload Payment Screenshot</div>
+
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="screenshotInput" accept="image/*" onchange="handleFile(this)">
+    <div class="upload-icon">📸</div>
+    <div class="upload-text">Drag &amp; drop or <span>browse</span> to upload</div>
+    <div class="upload-hint">PNG, JPG, JPEG • Payment confirmation screenshot</div>
+  </div>
+
+  <div class="preview-wrap" id="previewWrap">
+    <img id="previewImg" class="preview-img" src="" alt="Payment Screenshot">
+    <button class="remove-img" onclick="removeImage()">✕</button>
+  </div>
+
+  <div class="err" id="uploadErr">⚠️ Please upload your payment screenshot before confirming.</div>
+  <div class="err" id="selectErr">⚠️ Please select a Route and Fee Zone first.</div>
+
+  <button class="pay-btn" onclick="payNow()">Confirm Payment →</button>
+
+  <div class="tx-section" id="txSection">
+    <div class="success-badge">✅ Payment Confirmed Successfully!</div>
+    <div class="tx-label">Your Unique Transaction ID</div>
+    <div class="tx-box">
+      <span class="tx-id" id="txId"></span>
+      <button class="copy-btn" onclick="copyTxId()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROUTES = {
+  "Route A – Danpur (Rudrapur) to Lalkuan":{busNo:"UK 04PA 1785",stops:[{name:"Danpur (Rudrapur)",t1:"07:30 AM",t2:"11:10 AM"},{name:"Kiratpur",t1:"07:32 AM",t2:"11:12 AM"},{name:"Palam Green",t1:"07:35 AM",t2:"11:15 AM"},{name:"Green Park",t1:"07:40 AM",t2:"11:20 AM"},{name:"Tell Mill",t1:"07:42 AM",t2:"11:22 AM"},{name:"Gaba Chowk",t1:"07:45 AM",t2:"11:25 AM"},{name:"Indra Chowk",t1:"07:50 AM",t2:"11:30 AM"},{name:"Soniyan Hotel",t1:"07:52 AM",t2:"11:32 AM"},{name:"Binish Hotel",t1:"07:55 AM",t2:"11:35 AM"},{name:"R.K. Hotel",t1:"07:58 AM",t2:"11:38 AM"},{name:"Jeewan Deep",t1:"08:00 AM",t2:"11:40 AM"},{name:"PSC Gate",t1:"08:05 AM",t2:"11:45 AM"},{name:"Atariya Mandir",t1:"08:07 AM",t2:"11:47 AM"},{name:"Nearest Metro Police",t1:"08:10 AM",t2:"11:50 AM"},{name:"Haldi",t1:"08:15 AM",t2:"11:55 AM"},{name:"Pantnagar",t1:"08:20 AM",t2:"12:00 PM"},{name:"Nagala By Pass",t1:"08:25 AM",t2:"12:05 PM"},{name:"Lal Kuan",t1:"08:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"08:50 AM",t2:"12:30 PM"}],zones:[{label:"Danpur to Nearest Metro Police",fee:11000},{label:"Haldi to Nagala By Pass",fee:8000},{label:"Lal Kuan",fee:7000}]},
+  "Route B – Sitarganj to Lalkuan":{busNo:"UK 04PA 1788",stops:[{name:"Sitarganj (Sisikhera)",t1:"07:00 AM",t2:"10:40 AM"},{name:"Maharana Pratap Chowk",t1:"07:10 AM",t2:"10:50 AM"},{name:"Darha",t1:"07:20 AM",t2:"11:00 AM"},{name:"Pulbhatta",t1:"07:45 AM",t2:"11:25 AM"},{name:"Darau Chowk",t1:"07:50 AM",t2:"11:30 AM"},{name:"Kichha Bus Stand",t1:"08:00 AM",t2:"11:40 AM"},{name:"Khurpiya Farm",t1:"08:15 AM",t2:"11:55 AM"},{name:"Shantipur Gate",t1:"08:20 AM",t2:"12:00 PM"},{name:"Golgate",t1:"08:25 AM",t2:"12:05 PM"},{name:"Nagla",t1:"08:30 AM",t2:"12:10 PM"},{name:"Lal Kuan",t1:"08:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"08:50 AM",t2:"12:30 PM"}],zones:[{label:"Sitarganj to Darha",fee:14000},{label:"Pulbhatta to Darau Chowk",fee:12000},{label:"Kichha to Khurpiya Farm",fee:11000},{label:"Shantipuri to Nagla",fee:8000},{label:"Lal Kuan",fee:7000}]},
+  "Route C – Amritpur / Kathgodam to GEHU":{busNo:"UK 04PA 1789",stops:[{name:"Amritpur",t1:"7:15 AM",t2:"10:55 AM"},{name:"Ranibagh",t1:"7:25 AM",t2:"11:05 AM"},{name:"Kathgodam",t1:"7:30 AM",t2:"11:10 AM"},{name:"Hydel Gate",t1:"7:35 AM",t2:"11:15 AM"},{name:"Panchakki",t1:"7:45 AM",t2:"11:25 AM"},{name:"Laldanth Road/Chambalpul",t1:"7:50 AM",t2:"11:30 AM"},{name:"Laldanth Primary School",t1:"7:55 AM",t2:"11:35 AM"},{name:"Chunna Bhatti",t1:"7:57 AM",t2:"11:37 AM"},{name:"Bazpur Bus Stand",t1:"8:00 AM",t2:"11:40 AM"},{name:"Pilikothi Road/Shiv Mandir",t1:"8:02 AM",t2:"11:42 AM"},{name:"Pilikothi Parmanand",t1:"8:05 AM",t2:"11:45 AM"},{name:"Neem Ka Ped",t1:"8:08 AM",t2:"11:48 AM"},{name:"Dhanmill",t1:"8:10 AM",t2:"11:50 AM"},{name:"New ITI",t1:"8:12 AM",t2:"11:52 AM"},{name:"S.T.H. (Sushila Tiwari Hospital)",t1:"8:15 AM",t2:"11:55 AM"},{name:"Dewalchaur/TP Chowk",t1:"8:20 AM",t2:"12:00 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Amritpur to Ranibagh",fee:9000},{label:"Kathgodam to Sushila Tiwari Hospital",fee:8000},{label:"Dewalchaur",fee:7000},{label:"Ganna Centre",fee:6000}]},
+  "Route D – Panchakki to GEHU":{busNo:"UK 04PA 1787",stops:[{name:"Panchakki",t1:"8:00 AM",t2:"11:40 AM"},{name:"Shyama Garden",t1:"8:03 AM",t2:"11:43 AM"},{name:"Mukhani",t1:"8:08 AM",t2:"11:48 AM"},{name:"Judge Farm",t1:"8:10 AM",t2:"11:50 AM"},{name:"S.T.H. (Sushila Tiwari Hospital)",t1:"8:12 AM",t2:"11:52 AM"},{name:"Devalchaur",t1:"8:18 AM",t2:"11:58 AM"},{name:"Rampur Road",t1:"8:25 AM",t2:"12:05 PM"},{name:"Ganna Centre",t1:"8:30 AM",t2:"12:10 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Panchakki to Sushila Tiwari Hospital",fee:8000},{label:"Transport Nagar (Dewalchaur)",fee:7000},{label:"Panchayat Ghar / Ganna Centre to Motahaldu",fee:6000}]},
+  "Route E – Bazpur / Kaladhungi to GEHU":{busNo:"UK 04PA 2144",stops:[{name:"Bazpur",t1:"6:50 AM",t2:"10:30 AM"},{name:"Barhani",t1:"7:00 AM",t2:"10:40 AM"},{name:"Naya Gaon",t1:"7:20 AM",t2:"11:00 AM"},{name:"Kaladhungi",t1:"7:30 AM",t2:"11:10 AM"},{name:"Chakalua",t1:"7:40 AM",t2:"11:20 AM"},{name:"Lamachaur",t1:"7:50 AM",t2:"11:30 AM"},{name:"Kamluwaganja",t1:"7:55 AM",t2:"11:35 AM"},{name:"Hanuman Mandir",t1:"8:00 AM",t2:"11:40 AM"},{name:"RTO Road",t1:"8:05 AM",t2:"11:45 AM"},{name:"Pal College",t1:"8:15 AM",t2:"11:55 AM"},{name:"Panchayat Ghar",t1:"8:30 AM",t2:"12:10 PM"},{name:"Ganna Centre",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Bazpur",fee:14000},{label:"Barhani to Naya Gaon",fee:12000},{label:"Kaladhungi",fee:11000},{label:"Chakluwa to Lamachaur",fee:9000},{label:"Kamluwaganja to Pal College",fee:8000},{label:"Panchayat Ghar to Ganna Centre",fee:6000}]},
+  "Route F – Gularbhoj / Gadarpur to GEHU":{busNo:"UK 04PA 1815",stops:[{name:"Gularbhoj",t1:"6:10 AM",t2:"9:55 AM"},{name:"Gadarpur (Petrol Pump)",t1:"6:35 AM",t2:"10:20 AM"},{name:"Lalpuri",t1:"6:50 AM",t2:"10:35 AM"},{name:"Chakki More",t1:"7:05 AM",t2:"10:50 AM"},{name:"Bangali More",t1:"7:15 AM",t2:"11:00 AM"},{name:"Holi Krishna",t1:"7:20 AM",t2:"11:05 AM"},{name:"Dineshpur",t1:"7:25 AM",t2:"11:10 AM"},{name:"Durgapur",t1:"7:35 AM",t2:"11:20 AM"},{name:"Kalinagar",t1:"7:45 AM",t2:"11:30 AM"},{name:"Jayanagar",t1:"7:50 AM",t2:"11:35 AM"},{name:"Ashtbhuja Mandir",t1:"7:55 AM",t2:"11:40 AM"},{name:"Chhatarpur (Ashok Leyland Chowk)",t1:"8:00 AM",t2:"11:45 AM"},{name:"Belbaba",t1:"8:30 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:45 AM",t2:"12:30 PM"}],zones:[{label:"Gularbhoj to Kalinagar",fee:11000},{label:"Gadarpur to Holi Krishna",fee:12000},{label:"Jayanagar to Ashok Leyland Chowk",fee:9000},{label:"Belbaba Mandir",fee:7000}]},
+  "Route G – Chorgaliya / Kathgodam to GEHU":{busNo:"UK 04PA 1884",stops:[{name:"Chorgaliya",t1:"7:00 AM",t2:"10:40 AM"},{name:"Dani Bangar",t1:"7:20 AM",t2:"11:00 AM"},{name:"Rambag Daat",t1:"7:30 AM",t2:"11:10 AM"},{name:"Khera",t1:"7:35 AM",t2:"11:15 AM"},{name:"CRPF Camp",t1:"7:45 AM",t2:"11:25 AM"},{name:"Kathgodam",t1:"7:55 AM",t2:"11:35 AM"},{name:"Sheeshmahal",t1:"8:05 AM",t2:"11:45 AM"},{name:"Beersheba School",t1:"8:15 AM",t2:"11:55 AM"},{name:"Tikonia",t1:"8:25 AM",t2:"12:05 PM"},{name:"Kalusai Mandir",t1:"8:30 AM",t2:"12:10 PM"},{name:"Mangal Parao",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Chorgaliya",fee:11000},{label:"Dani Bangar",fee:9000},{label:"Rambag Daat to Kalusai Mandir",fee:8000},{label:"Mangal Parao to Gandhi School",fee:7000},{label:"Teen Pani to Motahaldu",fee:6000}]},
+  "Route H – Lamachour (via Kathgariya) to GEHU":{busNo:"UK 04PA 2027",stops:[{name:"Lamachour",t1:"7:30 AM",t2:"11:10 AM"},{name:"Fatehpur",t1:"7:35 AM",t2:"11:15 AM"},{name:"Gandhi Ashram",t1:"7:40 AM",t2:"11:20 AM"},{name:"Kathgariya",t1:"7:45 AM",t2:"11:25 AM"},{name:"Block",t1:"7:50 AM",t2:"11:30 AM"},{name:"Uchapul",t1:"7:55 AM",t2:"11:35 AM"},{name:"Gas Godam",t1:"8:00 AM",t2:"11:40 AM"},{name:"Chharayal",t1:"8:10 AM",t2:"11:50 AM"},{name:"Panchayat Ghar",t1:"8:20 AM",t2:"12:00 PM"},{name:"Ganna Centre",t1:"8:30 AM",t2:"12:10 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Lamachaur to Gandhi Ashram",fee:9000},{label:"Kathghariya to Gas Godam / Chharayal",fee:8000},{label:"Dewalchaur",fee:7000},{label:"Panchayat Ghar to Ganna Centre",fee:6000}]},
+  "Route I – Block / Chharayal to GEHU":{busNo:"UK 04PA 2028",stops:[{name:"Block",t1:"7:30 AM",t2:"11:10 AM"},{name:"Uchapul",t1:"7:50 AM",t2:"11:30 AM"},{name:"Central Hospital",t1:"8:00 AM",t2:"11:40 AM"},{name:"S More",t1:"8:05 AM",t2:"11:45 AM"},{name:"Chharayal",t1:"8:15 AM",t2:"11:55 AM"},{name:"Birla School",t1:"8:16 AM",t2:"11:56 AM"},{name:"Maharishi",t1:"8:20 AM",t2:"12:00 PM"},{name:"Dewalchaur",t1:"8:25 AM",t2:"12:05 PM"},{name:"Ganna Centre",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Block to Maharishi School",fee:8000},{label:"Dewalchaur",fee:7000},{label:"Ganna Centre",fee:6000}]},
+  "Route J – Shantipuri to GEHU":{busNo:"UK 04PA 2025",stops:[{name:"Shantipuri No. 02",t1:"7:30 AM",t2:"11:10 AM"},{name:"Tuti Puliya",t1:"7:43 AM",t2:"11:23 AM"},{name:"Kalika Mandir",t1:"7:50 AM",t2:"11:30 AM"},{name:"Tent Chowk",t1:"7:55 AM",t2:"11:35 AM"},{name:"Shiv Mandir",t1:"8:05 AM",t2:"11:45 AM"},{name:"Milk Dairy, Bindu Khera",t1:"8:12 AM",t2:"11:52 AM"},{name:"Hanuman Mandir",t1:"8:20 AM",t2:"12:00 PM"},{name:"Car Road",t1:"8:30 AM",t2:"12:10 PM"},{name:"ITBP",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Shantipuri",fee:8000},{label:"Tuti Puliya to Car Road",fee:7000},{label:"ITBP",fee:6000}]},
+  "Route K – Lamachour (via Kamluwaganja) to GEHU":{busNo:"UK 04PA 2032",stops:[{name:"Lamachour",t1:"7:50 AM",t2:"11:30 AM"},{name:"Kamluwaganja",t1:"8:00 AM",t2:"11:40 AM"},{name:"Hanuman Mandir",t1:"8:05 AM",t2:"11:45 AM"},{name:"RTO Road",t1:"8:10 AM",t2:"11:50 AM"},{name:"Pal College",t1:"8:15 AM",t2:"11:55 AM"},{name:"Panchayat Ghar",t1:"8:25 AM",t2:"12:05 PM"},{name:"Ganna Centre",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Lamachaur",fee:9000},{label:"Kamluwaganja to Pal College",fee:8000},{label:"Panchayat Ghar to Ganna Centre",fee:6000}]},
+  "Route L – MBPG College to GEHU":{busNo:"UK 04PA 1885",stops:[{name:"MBPG College",t1:"7:50 AM",t2:"11:30 AM"},{name:"Tikonia",t1:"7:55 AM",t2:"11:35 AM"},{name:"Roadways",t1:"8:00 AM",t2:"11:40 AM"},{name:"Kalu Sahi Mandir",t1:"8:05 AM",t2:"11:45 AM"},{name:"Mangal Parao",t1:"8:10 AM",t2:"11:50 AM"},{name:"Abdulla Building",t1:"8:15 AM",t2:"11:55 AM"},{name:"Mandi Gate",t1:"8:20 AM",t2:"12:00 PM"},{name:"Teen Pani",t1:"8:25 AM",t2:"12:05 PM"},{name:"Goraparao",t1:"8:35 AM",t2:"12:15 PM"},{name:"Motinagar",t1:"8:40 AM",t2:"12:20 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"MBPG to Kalu Sahi Mandir",fee:8000},{label:"Kalu Sahi / Gandhi School to Mandi Gate",fee:7000},{label:"Teen Pani to Motinagar",fee:6000}]},
+  "Route M – Gangapur to Lalkuan":{busNo:"UK 04PA 1790",stops:[{name:"Gangapur",t1:"7:35 AM",t2:"11:15 AM"},{name:"Daksh Chowk",t1:"7:45 AM",t2:"11:25 AM"},{name:"Koushaliyo ENC",t1:"7:47 AM",t2:"11:27 AM"},{name:"Bagwada Mandi",t1:"7:50 AM",t2:"11:30 AM"},{name:"Mumtaz Gate",t1:"7:55 AM",t2:"11:35 AM"},{name:"Lalpur",t1:"8:00 AM",t2:"11:40 AM"},{name:"Tool Plaza",t1:"8:05 AM",t2:"11:45 AM"},{name:"Narayan Pur",t1:"8:10 AM",t2:"11:50 AM"},{name:"Kanakpur",t1:"8:15 AM",t2:"11:55 AM"},{name:"Nagala Gate",t1:"8:25 AM",t2:"12:05 PM"},{name:"Lal Kuan",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Gangapur to Kanakpur",fee:11000},{label:"Nagala",fee:8000},{label:"Lal Kuan",fee:7000}]},
+  "Route N – JPS School / Haldi to Lalkuan":{busNo:"UK 04PA 1791",stops:[{name:"J P S School",t1:"7:50 AM",t2:"11:30 AM"},{name:"Khera",t1:"7:55 AM",t2:"11:35 AM"},{name:"Road Ways",t1:"8:00 AM",t2:"11:40 AM"},{name:"Metro Police",t1:"8:10 AM",t2:"11:50 AM"},{name:"Matkotamore",t1:"8:15 AM",t2:"11:55 AM"},{name:"Haldi",t1:"8:20 AM",t2:"12:00 PM"},{name:"Pantnagar",t1:"8:25 AM",t2:"12:05 PM"},{name:"Nagala By Pass",t1:"8:30 AM",t2:"12:10 PM"},{name:"Lal Kuan",t1:"8:40 AM",t2:"12:20 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Bhurarani to Metro Police",fee:11000},{label:"Matkotamore",fee:9000},{label:"Haldi to Nagala By Pass",fee:8000},{label:"Lal Kuan",fee:7000}]},
+  "Route O – Hanuman Mandir (RTO) to GEHU":{busNo:"UK 04PA 2142",stops:[{name:"Hanuman Mandir",t1:"8:10 AM",t2:"11:50 AM"},{name:"RTO Road",t1:"8:15 AM",t2:"11:55 AM"},{name:"Pal College",t1:"8:20 AM",t2:"12:00 PM"},{name:"Mehta Colony (Main Road)",t1:"8:25 AM",t2:"12:05 PM"},{name:"Nayra Petrol Pump",t1:"8:30 AM",t2:"12:10 PM"},{name:"Panchayat Ghar",t1:"8:35 AM",t2:"12:15 PM"},{name:"Ganna Centre",t1:"8:40 AM",t2:"12:20 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Hanuman Mandir to Pal College",fee:8000},{label:"Mehta Colony (Main Road)",fee:7000},{label:"Nayra Petrol Pump to Ganna Centre",fee:6000}]},
+  "Route P – Central Hospital to GEHU":{busNo:"UK 04PA 2143",stops:[{name:"Central Hospital",t1:"8:00 AM",t2:"11:40 AM"},{name:"Gas Godam Road (S More)",t1:"8:05 AM",t2:"11:45 AM"},{name:"Chhadeyel",t1:"8:10 AM",t2:"11:50 AM"},{name:"Birla School",t1:"8:15 AM",t2:"11:55 AM"},{name:"Maharishi School",t1:"8:20 AM",t2:"12:00 PM"},{name:"Dewalchaur",t1:"8:25 AM",t2:"12:05 PM"},{name:"Ganna Centre",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Central Hospital to Maharishi School",fee:8000},{label:"Dewalchaur",fee:7000},{label:"Ganna Centre",fee:6000}]},
+  "Route Q – Choufula Chowk to GEHU":{busNo:"UK 04PA 0803",stops:[{name:"Choufula Chowk",t1:"7:55 AM",t2:"11:35 AM"},{name:"Chakki More Attachakki",t1:"8:00 AM",t2:"11:40 AM"},{name:"Chambal Pul",t1:"8:03 AM",t2:"11:43 AM"},{name:"Lal Danth Chowk",t1:"8:10 AM",t2:"11:50 AM"},{name:"Pilikothi Chowk",t1:"8:15 AM",t2:"11:55 AM"},{name:"Neema Ka Ped",t1:"8:20 AM",t2:"12:00 PM"},{name:"Dhan Mill New",t1:"8:23 AM",t2:"12:03 PM"},{name:"New ITI",t1:"8:25 AM",t2:"12:05 PM"},{name:"Sushila Tiwari Hospital (STH)",t1:"8:27 AM",t2:"12:07 PM"},{name:"Dewalchaur",t1:"8:30 AM",t2:"12:10 PM"},{name:"Ganna Centre",t1:"8:35 AM",t2:"12:15 PM"},{name:"GEHU Campus",t1:"8:50 AM",t2:"12:30 PM"}],zones:[{label:"Choufula Chowk to Sushila Tiwari Hospital",fee:8000},{label:"Dewalchaur",fee:7000},{label:"Ganna Centre",fee:6000}]},
+};
+
+const UPI_QR = "upi://pay?pa=gehu.busfee@upi&pn=GEHU%20Haldwani%20Bus%20Fee&cu=INR";
+let uploadedFile = null;
+
+/* build dropdown */
+const routeSel = document.getElementById("routeSel");
+Object.keys(ROUTES).forEach(r=>{const o=document.createElement("option");o.value=r;o.textContent=r;routeSel.appendChild(o);});
+
+window.onload=()=>{ new QRCode(document.getElementById("qr"),{text:UPI_QR,width:160,height:160}); };
+
+function onRouteChange(){
+  const key=routeSel.value;
+  const feeRow=document.getElementById("feeZoneRow");
+  const info=document.getElementById("stopInfo");
+  const feeZone=document.getElementById("feeZoneSel");
+  document.getElementById("amount").textContent="₹ —";
+  document.getElementById("txSection").classList.remove("show");
+  document.getElementById("selectErr").classList.remove("show");
+  document.getElementById("uploadErr").classList.remove("show");
+
+  if(!key){info.classList.remove("show");feeRow.style.display="none";return;}
+  const data=ROUTES[key];
+  info.innerHTML=`<div class="bus-meta">🚌 ${data.busNo} &nbsp;•&nbsp; 🕐 Departure: 01:15 PM & 05:00 PM</div>`
+    +data.stops.map(s=>`<div class="stop-item"><span class="sname">${s.name}</span><span class="stime">☀ ${s.t1} | 🌆 ${s.t2}</span></div>`).join("");
+  info.classList.add("show");
+  feeZone.innerHTML='<option value="">— Select Your Stop —</option>';
+  data.zones.forEach((z,i)=>{const o=document.createElement("option");o.value=i;o.textContent=`${z.label}  —  ₹${z.fee.toLocaleString('en-IN')}`;feeZone.appendChild(o);});
+  feeRow.style.display="block";
+}
+
+function onFeeChange(){
+  const key=routeSel.value;
+  const idx=document.getElementById("feeZoneSel").value;
+  if(!key||idx===""){document.getElementById("amount").textContent="₹ —";return;}
+  document.getElementById("amount").textContent="₹ "+ROUTES[key].zones[idx].fee.toLocaleString('en-IN');
+}
+
+function handleFile(input){
+  const file=input.files[0]; if(!file) return;
+  uploadedFile=file;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById("previewImg").src=e.target.result;
+    document.getElementById("previewWrap").classList.add("show");
+    document.getElementById("uploadZone").style.display="none";
+    document.getElementById("uploadErr").classList.remove("show");
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage(){
+  uploadedFile=null;
+  document.getElementById("previewImg").src="";
+  document.getElementById("previewWrap").classList.remove("show");
+  document.getElementById("uploadZone").style.display="block";
+  document.getElementById("screenshotInput").value="";
+}
+
+/* drag & drop */
+const uz=document.getElementById("uploadZone");
+uz.addEventListener("dragover",e=>{e.preventDefault();uz.classList.add("drag");});
+uz.addEventListener("dragleave",()=>uz.classList.remove("drag"));
+uz.addEventListener("drop",e=>{
+  e.preventDefault();uz.classList.remove("drag");
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith("image/")){
+    uploadedFile=file;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      document.getElementById("previewImg").src=ev.target.result;
+      document.getElementById("previewWrap").classList.add("show");
+      document.getElementById("uploadZone").style.display="none";
+      document.getElementById("uploadErr").classList.remove("show");
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+/* unique TX ID */
+function getSessionSalt(){
+  let s=sessionStorage.getItem("gehu_salt");
+  if(!s){s=Math.random().toString(36).slice(2,7).toUpperCase();sessionStorage.setItem("gehu_salt",s);}
+  return s;
+}
+function generateTxId(routeKey,zoneLabel){
+  const ts=Date.now();
+  const rand=Math.random().toString(36).slice(2,9).toUpperCase();
+  const rcode=routeKey.match(/Route\s([A-Q])/i)?.[1]||"X";
+  const zcode=(zoneLabel||"XX").replace(/[^A-Z0-9]/gi,"").slice(0,5).toUpperCase();
+  return `GEHU-R${rcode}-${zcode}-${ts.toString(36).toUpperCase()}-${rand}-${getSessionSalt()}`;
+}
+
+function payNow(){
+  const key=routeSel.value;
+  const idx=document.getElementById("feeZoneSel").value;
+  document.getElementById("selectErr").classList.remove("show");
+  document.getElementById("uploadErr").classList.remove("show");
+
+  if(!key||idx===""){document.getElementById("selectErr").classList.add("show");return;}
+  if(!uploadedFile){document.getElementById("uploadErr").classList.add("show");return;}
+
+  const zone=ROUTES[key].zones[idx];
+  const txId=generateTxId(key,zone.label);
+  document.getElementById("txId").textContent=txId;
+  document.getElementById("txSection").classList.add("show");
+  document.getElementById("txSection").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function copyTxId(){
+  navigator.clipboard.writeText(document.getElementById("txId").textContent).then(()=>{
+    const b=document.querySelector(".copy-btn");b.textContent="✓ Copied!";
+    setTimeout(()=>b.textContent="Copy",2000);
+  });
+}
+</script>
+</body>
+</html>

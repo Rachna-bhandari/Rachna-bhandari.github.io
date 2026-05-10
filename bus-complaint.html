@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bus Complaints</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { 
+  font-family: Arial, sans-serif; 
+  background: #f2f2f2; 
+  padding:20px; 
+}
+
+h2 { 
+  text-align:center; 
+  color:#2193b0; 
+}
+
+.print-btn {
+  display: block;
+  margin: 10px auto 20px;
+  padding: 10px 20px;
+  background: #2193b0;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.print-btn:hover {
+  background: #176b80;
+}
+
+table { 
+  width:100%; 
+  border-collapse: collapse; 
+  background:#fff; 
+}
+
+th, td { 
+  padding:10px; 
+  border:1px solid #ccc; 
+  text-align:left; 
+}
+
+th { 
+  background:#2193b0;color:#fff;position: relative;
+}
+
+th.resolved-col::after {
+  content: "R";
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  font-size: 12px;
+  color: #fff;
+  background: #176b80;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resolved { 
+  background:#d4edda; 
+}
+
+.resolved-input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.print-action {
+  display: none;
+  font-weight: bold;
+}
+
+@media print {
+  .print-btn,
+  .resolved-input {
+    display: none;
+  }
+
+  .print-action {
+    display: inline;
+  }
+}
+</style>
+</head>
+<body>
+
+<h2>🚌 Bus Complaints</h2>
+
+<button class="print-btn" onclick="window.print()">⬇️ Download / Print</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>Bus</th>
+      <th>Name</th>
+      <th>Course</th>
+      <th>Complaint</th>
+      <th>Date</th>
+      <th class="resolved-col">Action Taken</th>
+    </tr>
+  </thead>
+  <tbody id="complaintTable"></tbody>
+</table>
+
+<script>
+const complaintTable = document.getElementById("complaintTable");
+let complaints = JSON.parse(localStorage.getItem("busComplaints") || "[]");
+
+// Render table function
+function renderTable(){
+  complaintTable.innerHTML = "";
+
+  if(complaints.length === 0){
+    complaintTable.innerHTML =
+      `<tr><td colspan="6" style="text-align:center;">No complaints yet</td></tr>`;
+    return;
+  }
+
+  complaints.forEach((c, i) => {
+    complaintTable.innerHTML += `
+      <tr class="${c.resolution ? 'resolved' : ''}">
+        <td>${c.bus}</td>
+        <td>${c.name}</td>
+        <td>${c.course}</td>
+        <td>${c.text}</td>
+        <td>${c.date}</td>
+        <td>
+          <input 
+            class="resolved-input"
+            type="text"
+            placeholder="Write action taken..."
+            value="${c.resolution || ''}"
+            oninput="saveResolution(${i}, this.value)"
+          >
+          <span class="print-action">${c.resolution || ''}</span>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+// Save resolution to localStorage
+function saveResolution(index, value){
+  complaints[index].resolution = value;
+  localStorage.setItem("busComplaints", JSON.stringify(complaints));
+  renderTable();
+}
+
+// Initial render
+renderTable();
+</script>
+
+</body>
+</html>

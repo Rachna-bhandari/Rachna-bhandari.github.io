@@ -1,0 +1,28 @@
+.profile-card{
+  background:linear-gradient(180deg,#2aa4db,#2b7cb5);
+  margin:12px;
+  border-radius:14px;
+  text-align:center;
+  color:#fff;
+  padding:12px 10px;   /* yahan space kam */
+}
+
+.profile-pic{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  border:3px solid #fff;
+  margin-bottom:4px;
+}
+
+.profile-card h2{
+  margin:3px 0 2px;
+  font-size:16px;
+  font-weight:600;
+}
+
+.profile-card p{
+  margin:1px 0;
+  font-size:12.5px;
+  line-height:1.15;
+}

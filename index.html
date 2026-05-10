@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Bus Registration System Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+  .login-box {
+    background: rgba(255, 255, 255, 0.0);
+    padding: 25px;
+    width: 320px;
+    border-radius: 10px;
+    border: 2px solid #000;
+    z-index: 10;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #000;
+  }
+
+  input, select, button {
+    width: 100%;
+    height: 42px;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  input, select {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  button {
+    background: #2193b0;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+  }
+
+  button:hover {
+    background: #176f86;
+  }
+
+  #msg {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+</style>
+</head>
+
+<body style="
+  font-family: Arial, sans-serif;
+  background-image: url('assets/image.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+">
+
+<div class="login-box" id="loginBox">
+  <h2>Bus-Registration Login</h2>
+
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <select id="role" required>
+      <option value="">Select Role</option>
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+      <option value="Admin">Admin</option>
+    </select>
+    <button type="submit">Login</button>
+  </form>
+  <p id="msg"></p>
+</div>
+
+<script>
+const API = "https://rachna-bhandari-github-io-3.onrender.com";
+const form     = document.getElementById("loginForm");
+const msg      = document.getElementById("msg");
+const loginBox = document.getElementById("loginBox");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msg.innerText = "";
+  msg.style.color = "black";
+
+  const email    = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const role     = document.getElementById("role").value;
+
+  if (!email || !password || !role) {
+    msg.style.color = "red";
+    msg.innerText = "Please fill all fields";
+    return;
+  }
+
+  // ─── Admin hardcoded login ───
+  if (email === "admin@example.com" && password === "admin@123" && role === "Admin") {
+    msg.style.color = "green";
+    msg.innerText = "Admin login successful";
+    setTimeout(() => { window.location.href = "admin-dashboard.html"; }, 500);
+    return;
+  }
+
+  msg.innerText = "Logging in...";
+
+  try {
+    const response = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, role })
+    });
+
+    const data = await response.json();
+
+    // ─── Student added by admin → go directly to dashboard ───
+    if (data.success && data.role === "student") {
+      msg.style.color = "green";
+      msg.innerText = "Login successful!";
+
+      // Save session
+      localStorage.setItem("loggedInEmail", email);
+
+      // Save full profile for instant dashboard render
+      if (data.student) {
+        localStorage.setItem("studentProfile", JSON.stringify(data.student));
+        if (data.student.photo) {
+          try { localStorage.setItem("profilePhoto_" + email, data.student.photo); } catch(ex) {}
+        }
+        if (data.student.txnId)     localStorage.setItem("txnId",      data.student.txnId);
+        if (data.student.bookedBus) localStorage.setItem("studentBus", data.student.bookedBus);
+      }
+
+      setTimeout(() => { window.location.href = "student-dashboard.html"; }, 400);
+      return;
+    }
+
+    // ─── Teacher ───
+    if (data.success && data.role === "teacher") {
+      window.location.href = "teacher-dashboard.html";
+      return;
+    }
+
+    // ─── NOT found in DB (not added by admin) ───
+    if (data.redirect === "signup") {
+      msg.style.color = "red";
+      msg.innerText = "❌ Account not found. Please contact admin.";
+      return;
+    }
+
+    // ─── Wrong password or other error ───
+    msg.style.color = "red";
+    msg.innerText = data.message || "Invalid email or password";
+
+  } catch (error) {
+    msg.style.color = "red";
+    msg.innerText = "Cannot connect to server. Make sure server is running.";
+  }
+});
+</script>
+
+</body>
+</html>
