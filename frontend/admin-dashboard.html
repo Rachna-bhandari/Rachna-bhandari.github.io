@@ -38,7 +38,7 @@ td{background:rgba(255,255,255,0.88);padding:9px 10px;border:1px solid #ccc;font
 .resolve-btn:hover{background:#388e3c;}
 .student-count{font-size:13px;color:#fff;background:rgba(0,0,0,0.35);padding:4px 12px;border-radius:12px;}
 .photo-thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #ddd;}
-.icon{position:fixed;right:25px;width:55px;height:55px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;cursor:pointer;box-shadow:0 6px 15px rgba(0,0,0,.3)}
+.icon{position:fixed;right:25px;width:55px;height:55px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer;box-shadow:0 6px 15px rgba(0,0,0,.3)}
 #noticeIcon{bottom:20px;background:#ff9800}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000}
 .modal-content{background:#fff;padding:24px;border-radius:12px;width:460px;max-height:88vh;overflow-y:auto;position:relative;}
@@ -114,24 +114,24 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
 <body>
 
 <div class="sidebar">
-  <h2>🚌 Buses</h2>
+  <h2>Buses</h2>
   <div id="busList"></div>
 </div>
 
 <div class="main" id="dashboardContent">
   <div class="tab-bar" style="align-items:center;">
-    <button class="tab-btn active" onclick="showTab('bus')">🚌 Bus Bookings</button>
-    <button class="tab-btn" onclick="showTab('students')">👨‍🎓 Student Sheet</button>
-    <button class="tab-btn" onclick="showTab('attendance')">📋 Attendance</button>
-    <button class="tab-btn" onclick="showTab('complaints')">📢 Complaints</button>
-    <div id="serverStatus" style="margin-left:auto;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;background:#e0e0e0;color:#555;">⏳ Checking...</div>
+    <button class="tab-btn active" onclick="showTab('bus')">Bus Bookings</button>
+    <button class="tab-btn" onclick="showTab('students')">Student Sheet</button>
+    <button class="tab-btn" onclick="showTab('attendance')">Attendance</button>
+    <button class="tab-btn" onclick="showTab('complaints')">Complaints</button>
+    <div id="serverStatus" style="margin-left:auto;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;background:#e0e0e0;color:#555;">Checking...</div>
   </div>
 
   <!-- BUS SECTION -->
   <div id="busSection">
     <h2 id="busTitle">ADMIN DASHBOARD</h2>
-    <button class="print-btn" onclick="window.print()">⬇️ Download / Print</button>
-    <button class="pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
+    <button class="print-btn" onclick="window.print()">Download / Print</button>
+    <button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
     <table>
       <thead>
         <tr>
@@ -146,9 +146,9 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
   <!-- STUDENT SHEET -->
   <div id="studentSheetSection">
     <div class="sheet-toolbar">
-      <h2 style="margin:0;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">👨‍🎓 Student Master Sheet</h2>
+      <h2 style="margin:0;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">Student Master Sheet</h2>
       <span class="student-count" id="studentCount">0 Students</span>
-      <input class="search-input" type="text" id="searchInput" placeholder="🔍 Search by name, email, roll..." oninput="renderStudentTable()">
+      <input class="search-input" type="text" id="searchInput" placeholder="Search by name, email, roll..." oninput="renderStudentTable()">
       <button class="add-btn" onclick="openAddModal()">+ Add Student</button>
     </div>
     <table>
@@ -162,26 +162,26 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
   <!-- ATTENDANCE -->
   <div id="attendanceSection">
     <div class="att-header">
-      <h2>📋 Daily Attendance</h2>
+      <h2>Daily Attendance</h2>
       <span class="student-count" id="attStudentCount">0 Students</span>
     </div>
     <div class="view-tab-bar">
-      <button class="view-tab-btn active" onclick="switchAttView('mark')">✏️ Mark Attendance</button>
-      <button class="view-tab-btn" onclick="switchAttView('report')">📊 Attendance Report</button>
-      <button class="view-tab-btn" onclick="switchAttView('history')">🗓️ Date History</button>
+      <button class="view-tab-btn active" onclick="switchAttView('mark')">Mark Attendance</button>
+      <button class="view-tab-btn" onclick="switchAttView('report')">Attendance Report</button>
+      <button class="view-tab-btn" onclick="switchAttView('history')">Date History</button>
     </div>
     <div id="attMarkView">
       <div class="att-controls">
-        <label style="color:#fff;font-weight:600;font-size:13px;">📅 Date:</label>
+        <label style="color:#fff;font-weight:600;font-size:13px;">Date:</label>
         <input type="date" class="att-date-input" id="attDate" onchange="loadAttendanceForDate()">
         <select class="att-filter-select" id="attBusFilter" onchange="renderAttendanceTable()">
           <option value="all">All Students</option>
           <option value="none">Not Booked</option>
         </select>
-        <input class="search-input" type="text" id="attSearchInput" placeholder="🔍 Search student..." oninput="renderAttendanceTable()" style="width:180px;">
+        <input class="search-input" type="text" id="attSearchInput" placeholder="Search student..." oninput="renderAttendanceTable()" style="width:180px;">
         <div class="att-mark-all-btns">
-          <button class="mark-all-btn mark-all-present" onclick="markAll('P')">✅ All Present</button>
-          <button class="mark-all-btn mark-all-absent" onclick="markAll('A')">❌ All Absent</button>
+          <button class="mark-all-btn mark-all-present" onclick="markAll('P')">All Present</button>
+          <button class="mark-all-btn mark-all-absent" onclick="markAll('A')">All Absent</button>
         </div>
       </div>
       <div class="att-summary" id="attSummary"></div>
@@ -192,24 +192,24 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
         </table>
       </div>
       <div class="att-save-bar">
-        <span id="attSaveStatus">👆 Mark attendance and save</span>
-        <button class="att-save-btn" onclick="saveAttendance()">💾 Save Attendance</button>
+        <span id="attSaveStatus">Mark attendance and save</span>
+        <button class="att-save-btn" onclick="saveAttendance()">Save Attendance</button>
       </div>
     </div>
     <div id="attReportView" style="display:none;">
       <div class="att-controls">
-        <label style="color:#fff;font-weight:600;font-size:13px;">📅 From:</label>
+        <label style="color:#fff;font-weight:600;font-size:13px;">From:</label>
         <input type="date" class="att-date-input" id="reportFrom">
         <label style="color:#fff;font-weight:600;font-size:13px;">To:</label>
         <input type="date" class="att-date-input" id="reportTo">
         <select class="att-filter-select" id="reportBusFilter"><option value="all">All Students</option></select>
-        <button class="add-btn" onclick="generateReport()" style="margin-top:0;">📊 Generate</button>
+        <button class="add-btn" onclick="generateReport()" style="margin-top:0;">Generate Report</button>
       </div>
       <div id="attReportContent"></div>
     </div>
     <div id="attHistoryView" style="display:none;">
       <div class="att-controls">
-        <label style="color:#fff;font-weight:600;font-size:13px;">📅 Select Date:</label>
+        <label style="color:#fff;font-weight:600;font-size:13px;">Select Date:</label>
         <input type="date" class="att-date-input" id="histDate" onchange="loadHistoryDate()">
       </div>
       <div class="att-summary" id="histSummary"></div>
@@ -225,7 +225,7 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
   <!-- COMPLAINTS -->
   <div id="complaintSection">
     <div class="sheet-toolbar">
-      <h2 style="margin:0;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">📢 Bus Complaints</h2>
+      <h2 style="margin:0;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5);">Bus Complaints</h2>
       <span class="student-count" id="complaintCount">0 Complaints</span>
       <select id="filterComplaint" onchange="renderComplaints()" style="width:160px;margin-top:0;padding:8px 10px;border-radius:6px;font-size:13px;border:1px solid #ccc;background:rgba(255,255,255,0.9);color:#333;">
         <option value="all">All Buses</option>
@@ -235,13 +235,18 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
   </div>
 </div>
 
-<div class="icon" id="noticeIcon">🔔</div>
+<!-- Notice Bell Icon -->
+<div class="icon" id="noticeIcon" title="Send Notice">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+  </svg>
+</div>
 
 <!-- NOTICE MODAL -->
 <div class="modal" id="noticeModal">
   <div class="modal-content">
     <button class="close-modal" onclick="noticeModal.style.display='none'">&times;</button>
-    <h3>📢 Bus Notice</h3>
+    <h3>Bus Notice</h3>
     <select id="noticeBus"><option value="">Select Bus</option><option value="ALL">All Buses</option></select>
     <textarea id="noticeText" placeholder="Enter notice..."></textarea>
     <button id="saveNoticeBtn" style="margin-top:10px;">Send Notice</button>
@@ -252,7 +257,7 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
 <div class="modal" id="studentFormModal">
   <div class="modal-content">
     <button class="close-modal" onclick="studentFormModal.style.display='none'">&times;</button>
-    <h3 id="formTitle">➕ Add Student</h3>
+    <h3 id="formTitle">Add Student</h3>
     <div class="form-grid">
       <div class="form-group"><label>Full Name *</label><input id="fName" placeholder="Rachna Bhandari"></div>
       <div class="form-group"><label>Roll No *</label><input id="fRoll" placeholder="24012610"></div>
@@ -269,7 +274,7 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
       </div>
       <div class="form-group"><label>College</label><input id="fCollege" value="GEHU – Haldwani"></div>
     </div>
-    <button class="save-btn" onclick="saveStudent()">💾 Save Student</button>
+    <button class="save-btn" onclick="saveStudent()">Save Student</button>
   </div>
 </div>
 
@@ -281,27 +286,6 @@ button{background:#2193b0;color:#fff;border:none;border-radius:6px;cursor:pointe
 
 <script>
 const API = "https://rachna-bhandari-github-io-3.onrender.com";
-
-/* ══════════════════════════════════════════════════════════════════
-   PERMANENT STORAGE — localStorage
-   
-   ✅ FIX: localStorage KABHI delete nahi hota jab tak:
-      1. User manually "Clear Site Data" na kare
-      2. Browser cache manually clear na kare
-      3. Incognito/Private mode use na kare (tab close par delete hoga)
-   
-   ❌ Pehle ki problem:
-      - Bookings sirf backend se load ho rahe the
-      - Backend offline hone par data memory mein tha
-      - Page reload par fresh fetch hota tha, localStorage mein
-        save nahi ho raha tha properly
-   
-   ✅ Naya fix:
-      - Har booking/complaint change hone par TURANT localStorage mein save
-      - Backend se aaya data bhi localStorage mein save (cache)
-      - Backend offline ho to localStorage se load
-      - localStorage ALWAYS primary source of truth hai
-══════════════════════════════════════════════════════════════════ */
 
 // ── localStorage helpers ──────────────────────────────────────────
 function lsSet(key, value) {
@@ -347,9 +331,7 @@ let currentBusData = [];
 let todayAttendance = {};
 let currentAttDate  = "";
 
-/* ══════════════════════════════════════════════════════════════════
-   SIDEBAR — BUS LIST BUILD KARO
-══════════════════════════════════════════════════════════════════ */
+/* ── BUILD SIDEBAR ── */
 for(let i = 65; i <= 84; i++){
   const b = String.fromCharCode(i);
   const d = document.createElement("div");
@@ -362,7 +344,6 @@ for(let i = 65; i <= 84; i++){
   };
   busList.appendChild(d);
 
-  // Dropdown options add karo
   [noticeBus, document.getElementById("filterComplaint")].forEach(sel => {
     sel.appendChild(Object.assign(document.createElement("option"), {value: b, textContent: "Bus " + b}));
   });
@@ -373,7 +354,6 @@ for(let i = 65; i <= 84; i++){
   });
 }
 
-// Last selected bus restore karo page reload ke baad bhi
 const lastBus = lsGet("adminLastBus", null);
 if(lastBus){
   const el = [...document.querySelectorAll(".bus")].find(d => d.textContent === "Bus " + lastBus);
@@ -383,9 +363,7 @@ if(lastBus){
 
 window.addEventListener("load", () => checkServer());
 
-/* ══════════════════════════════════════════════════════════════════
-   TABS
-══════════════════════════════════════════════════════════════════ */
+/* ── TABS ── */
 function showTab(tab){
   document.getElementById("busSection").style.display          = tab === "bus"        ? "block" : "none";
   document.getElementById("studentSheetSection").style.display = tab === "students"   ? "block" : "none";
@@ -401,48 +379,30 @@ function showTab(tab){
   if(tab === "attendance") initAttendance();
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   BUS BOOKINGS — PERMANENT LOCALSTORAGE FIX
-   
-   KEY FIX: 
-   1. Backend se data aaye to localStorage mein SAVE karo
-   2. Student app se booking aaye to localStorage mein DIRECTLY save karo
-   3. loadBus() mein PEHLE localStorage check karo, fir backend
-   
-   Student app ke saath sync karne ke liye:
-   Student app ko bhi same localStorage key use karni chahiye:
-   "busSeats_A", "busSeats_B" etc. (same browser mein ho to kaam karega)
-   Alag browser/device ke liye backend zaruri hai.
-══════════════════════════════════════════════════════════════════ */
 async function loadBus(bus){
   currentBus = bus;
   lsSet("adminLastBus", bus);
   busTitle.textContent = "Bus " + bus + " — Bookings";
-  tableBody.innerHTML = `<tr><td colspan="8" align="center">⏳ Loading...</td></tr>`;
+  tableBody.innerHTML = `<tr><td colspan="8" align="center">Loading...</td></tr>`;
 
   let data = [];
 
-  // STEP 1: Pehle localStorage se load karo (instant, always works)
   const cached = lsGet("busSeats_" + bus, null);
   if(cached && Array.isArray(cached)){
     data = cached;
   }
 
-  // STEP 2: Backend se bhi try karo (fresh data ke liye)
   try {
     const online = await checkServer();
     if(online){
       const res = await fetch(`${API}/bus/bookings/${bus}`, {signal: AbortSignal.timeout(5000)});
       const json = await res.json();
       if(json.success && Array.isArray(json.bookings)){
-        // ✅ Backend se aaya data localStorage mein save karo
-        // Merge karo: localStorage data + backend data (duplicates hata ke)
         data = mergeBookings(cached || [], json.bookings);
         lsSet("busSeats_" + bus, data);
       }
     }
   } catch(e) {
-    // Backend offline — localStorage data use karo (already loaded above)
     console.log("Backend offline, using localStorage data for Bus", bus);
   }
 
@@ -450,15 +410,14 @@ async function loadBus(bus){
   renderBusTable(data, bus);
 }
 
-// Bookings merge karo (duplicates hata ke) — studentId + seatNo se identify karo
 function mergeBookings(local, backend){
-  const merged = [...backend]; // Backend data primary
+  const merged = [...backend];
   local.forEach(l => {
     const exists = merged.some(b =>
       String(b.studentId) === String(l.studentId) &&
       String(b.seatNo) === String(l.seatNo)
     );
-    if(!exists) merged.push(l); // Sirf naye local entries add karo
+    if(!exists) merged.push(l);
   });
   return merged;
 }
@@ -477,10 +436,10 @@ function renderBusTable(data, bus){
       <td>${escHtml(s.course||'—')}</td>
       <td>${escHtml(String(s.studentId||'—'))}</td>
       <td><b>${escHtml(String(s.seatNo||'—'))}</b></td>
-      <td class="done">✅ Done</td>
+      <td class="done">Done</td>
       <td>${s.paymentScreenshot ? `<img src="${s.paymentScreenshot}" class="payment-ss" data-idx="${idx}">` : '—'}</td>
       <td>
-        <button class="action-btn del-btn" data-idx="${idx}">🗑️ Remove</button>
+        <button class="action-btn del-btn" data-idx="${idx}">Remove</button>
       </td>`;
     const ssImg = tr.querySelector('.payment-ss');
     if(ssImg) ssImg.addEventListener('click', () => openSSModal(s.paymentScreenshot));
@@ -491,7 +450,7 @@ function renderBusTable(data, bus){
 
 async function deleteBooking(idx){
   const booking = currentBusData[idx];
-  if(!booking){ alert("⚠️ Booking not found. Please refresh."); return; }
+  if(!booking){ alert("Booking not found. Please refresh."); return; }
 
   const confirmed = confirm(
     `Remove this booking?\n\n` +
@@ -503,16 +462,13 @@ async function deleteBooking(idx){
   );
   if(!confirmed) return;
 
-  // ✅ FIX: PEHLE localStorage se delete karo (reliable)
   let freshData = lsGet("busSeats_" + currentBus, []);
-  
-  // Index se delete karo
+
   const newData = freshData.filter((s, i) => {
     if(freshData.length === currentBusData.length && i === idx) return false;
     return true;
   });
 
-  // Fallback: studentId + seatNo + name se match karo
   let finalData = newData;
   if(newData.length === freshData.length){
     finalData = freshData.filter(s =>
@@ -521,18 +477,15 @@ async function deleteBooking(idx){
     );
   }
 
-  // ✅ localStorage mein IMMEDIATELY save karo
   lsSet("busSeats_" + currentBus, finalData);
   currentBusData = finalData;
 
-  // Backend sync karo bhi (silently)
   syncBookingDelete(currentBus, booking);
 
-  alert(`✅ Booking removed: ${booking.name} — Seat ${booking.seatNo}`);
+  alert(`Booking removed: ${booking.name} — Seat ${booking.seatNo}`);
   renderBusTable(finalData, currentBus);
 }
 
-// Backend sync (optional, silently fails if offline)
 async function syncBookingDelete(bus, booking){
   try {
     await fetch(`${API}/bus/bookings/${bus}/delete`, {
@@ -550,48 +503,34 @@ function escHtml(str){
     .replace(/'/g,'&#39;');
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   SERVER STATUS CHECK
-══════════════════════════════════════════════════════════════════ */
+/* ── SERVER STATUS ── */
 async function checkServer(){
   try{
     const res = await fetch(`${API}/admin/students`, {signal: AbortSignal.timeout(3000)});
     const data = await res.json();
     if(data.success !== undefined){
       document.getElementById("serverStatus").style.cssText = "background:#c8e6c9;color:#2e7d32;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;";
-      document.getElementById("serverStatus").textContent = "✅ Server Connected";
+      document.getElementById("serverStatus").textContent = "Server Connected";
       return true;
     }
   } catch(e) {}
   document.getElementById("serverStatus").style.cssText = "background:#ffcdd2;color:#c62828;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;";
-  document.getElementById("serverStatus").textContent = "❌ Server Offline";
+  document.getElementById("serverStatus").textContent = "Server Offline";
   return false;
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   COMPLAINTS — PERMANENT LOCALSTORAGE FIX
-   
-   KEY FIX:
-   1. loadComplaints() mein PEHLE localStorage se load karo
-   2. Backend se aaye data ko localStorage mein save karo (cache)
-   3. Resolve/Delete turant localStorage mein save ho
-   4. Student app bhi same key "busComplaints" use kare
-══════════════════════════════════════════════════════════════════ */
+/* ── COMPLAINTS ── */
 async function loadComplaints(){
-  // STEP 1: Pehle localStorage se load karo (instant)
   const cached = lsGet("busComplaints", []);
   allComplaints = Array.isArray(cached) ? cached : [];
 
-  // STEP 2: Backend se fresh data try karo
   try {
     const online = await checkServer();
     if(online){
       const res = await fetch(`${API}/complaints`, {signal: AbortSignal.timeout(5000)});
       const json = await res.json();
       if(json.success && Array.isArray(json.complaints)){
-        // Backend data ko localStorage ke saath merge karo
         allComplaints = mergeComplaints(allComplaints, json.complaints);
-        // ✅ Merged data localStorage mein save karo
         lsSet("busComplaints", allComplaints);
       }
     }
@@ -603,7 +542,6 @@ async function loadComplaints(){
   renderComplaints();
 }
 
-// Complaints merge karo (ID se identify karo)
 function mergeComplaints(local, backend){
   const merged = [...backend];
   local.forEach(l => {
@@ -626,7 +564,7 @@ function renderComplaints(){
     .reverse();
 
   if(!indexedFiltered.length){
-    list.innerHTML = `<div style="color:#fff;text-align:center;margin-top:40px;font-size:16px;">Koi complaint nahi mili.</div>`;
+    list.innerHTML = `<div style="color:#fff;text-align:center;margin-top:40px;font-size:16px;">No complaints found.</div>`;
     return;
   }
 
@@ -636,26 +574,26 @@ function renderComplaints(){
     div.className = "complaint-card" + (c.resolved ? " resolved" : "");
     div.innerHTML = `
       <div class="complaint-meta">
-        🚌 <b>Bus ${escHtml(c.bus||'—')}</b> &nbsp;|&nbsp;
-        👤 ${escHtml(c.name||'Anonymous')} &nbsp;|&nbsp;
-        📅 ${escHtml(c.date||'—')} &nbsp;|&nbsp;
-        <span class="badge ${c.resolved?'badge-resolved':'badge-pending'}">${c.resolved?'✅ Resolved':'⏳ Pending'}</span>
+         <b>Bus ${escHtml(c.bus||'—')}</b> &nbsp;|&nbsp;
+         ${escHtml(c.name||'Anonymous')} &nbsp;|&nbsp;
+         ${escHtml(c.date||'—')} &nbsp;|&nbsp;
+        <span class="badge ${c.resolved?'badge-resolved':'badge-pending'}">${c.resolved?'Resolved':'Pending'}</span>
       </div>
-      <div class="complaint-text">📝 ${escHtml(c.text||'—')}</div>
+      <div class="complaint-text">${escHtml(c.text||'—')}</div>
       ${c.resolved && c.actionTaken
         ? `<div style="background:#e8f5e9;border-radius:6px;padding:8px 10px;border-left:3px solid #43a047;font-size:13px;margin-bottom:8px;">
-             🛠️ <b>Action taken:</b> ${escHtml(c.actionTaken)}<br>
+             <b>Action taken:</b> ${escHtml(c.actionTaken)}<br>
              <small style="color:#888;">${c.resolvedAt||''}</small>
            </div>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;">
         ${!c.resolved ? `<div>
-          <button class="action-btn resolve-btn" data-confirm-idx="${idx}">✅ Mark Resolved</button>
+          <button class="action-btn resolve-btn" data-confirm-idx="${idx}">Mark Resolved</button>
           <div style="margin-top:8px;">
             <input type="text" placeholder="Action taken (optional)..." style="width:280px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;" data-action-idx="${idx}">
             <button style="width:auto;margin-top:4px;padding:5px 12px;background:#43a047;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;" data-saveresolve-idx="${idx}">Confirm Resolve</button>
           </div>
         </div>` : ''}
-        <button class="action-btn del-btn" data-del-idx="${idx}">🗑️ Delete</button>
+        <button class="action-btn del-btn" data-del-idx="${idx}">Delete</button>
       </div>`;
 
     const saveResolveBtn = div.querySelector(`[data-saveresolve-idx="${idx}"]`);
@@ -677,24 +615,20 @@ async function resolveComplaint(idx, actionTaken){
   allComplaints[idx].status      = "resolved";
   allComplaints[idx].resolvedAt  = new Date().toLocaleString();
   allComplaints[idx].actionTaken = actionTaken || "";
-  await saveComplaints(); // ✅ localStorage + backend dono mein save
+  await saveComplaints();
   renderComplaints();
 }
 
 async function deleteComplaint(idx){
   if(!confirm("Delete this complaint permanently?")) return;
   allComplaints.splice(idx, 1);
-  await saveComplaints(); // ✅ localStorage + backend dono mein save
+  await saveComplaints();
   document.getElementById("complaintCount").textContent = allComplaints.length + " Complaints";
   renderComplaints();
 }
 
-// ✅ KEY FIX: PEHLE localStorage mein save, fir backend sync
 async function saveComplaints(){
-  // 1. TURANT localStorage mein save karo
   lsSet("busComplaints", allComplaints);
-
-  // 2. Background mein backend sync karo (fail hone par koi problem nahi)
   try {
     await fetch(`${API}/complaints/save`, {
       method: "POST",
@@ -702,15 +636,12 @@ async function saveComplaints(){
       body: JSON.stringify({complaints: allComplaints})
     });
   } catch(e) {
-    console.log("Backend sync failed (offline) - data localStorage mein saved hai");
+    console.log("Backend sync failed (offline) - data saved in localStorage");
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   STUDENT SHEET
-══════════════════════════════════════════════════════════════════ */
+/* ── STUDENT SHEET ── */
 async function loadStudentSheet(){
-  // Pehle cache se load karo
   allStudents = lsGet("adminStudentCache", []);
 
   try {
@@ -720,7 +651,7 @@ async function loadStudentSheet(){
       const data = await res.json();
       if(data.success){
         allStudents = data.students;
-        lsSet("adminStudentCache", allStudents); // Cache update karo
+        lsSet("adminStudentCache", allStudents);
       }
     }
   } catch(e) {
@@ -749,7 +680,7 @@ function renderStudentTable(){
     tr.innerHTML = `
       <td>${s.photo
         ? `<img src="${s.photo}" class="photo-thumb">`
-        : `<div style="width:36px;height:36px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>`}</td>
+        : `<div style="width:36px;height:36px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:18px;">&#128100;</div>`}</td>
       <td><b>${escHtml(s.name||'—')}</b></td>
       <td>${escHtml(s.rollNo||'—')}</td>
       <td style="font-size:12px;">${escHtml(s.email||'—')}</td>
@@ -760,8 +691,8 @@ function renderStudentTable(){
         ? `Bus ${escHtml(s.bookedBus)} · Seat ${escHtml(String(s.bookedSeat||'?'))}`
         : '<span style="color:#aaa;">Not booked</span>'}</td>
       <td>
-        <button class="action-btn edit-btn" data-email="${escHtml(s.email)}">✏️ Edit</button>
-        <button class="action-btn del-btn" data-email="${escHtml(s.email)}">🗑️</button>
+        <button class="action-btn edit-btn" data-email="${escHtml(s.email)}">Edit</button>
+        <button class="action-btn del-btn" data-email="${escHtml(s.email)}">Delete</button>
       </td>`;
     tr.querySelector('.edit-btn').addEventListener('click', () => openEditModal(s.email));
     tr.querySelector('.del-btn').addEventListener('click', () => deleteStudent(s.email));
@@ -771,7 +702,7 @@ function renderStudentTable(){
 
 function openAddModal(){
   editingEmail = null;
-  document.getElementById("formTitle").textContent = "➕ Add Student";
+  document.getElementById("formTitle").textContent = "Add Student";
   ["fName","fRoll","fEmail","fPassword","fPhone","fDob","fCourse"].forEach(id => {
     const el = document.getElementById(id);
     el.value = "";
@@ -785,7 +716,7 @@ function openEditModal(email){
   const s = allStudents.find(x => x.email === email);
   if(!s) return;
   editingEmail = email;
-  document.getElementById("formTitle").textContent = "✏️ Edit Student";
+  document.getElementById("formTitle").textContent = "Edit Student";
   document.getElementById("fName").value     = s.name||"";
   document.getElementById("fRoll").value     = s.rollNo||"";
   document.getElementById("fEmail").value    = s.email||"";
@@ -824,14 +755,14 @@ async function saveStudent(){
     }
     data = await res.json();
     if(data.success){
-      alert(editingEmail ? "✅ Student updated!" : "✅ Student added!");
+      alert(editingEmail ? "Student updated successfully." : "Student added successfully.");
       studentFormModal.style.display = "none";
       loadStudentSheet();
     } else {
-      alert("❌ " + (data.message||"Error"));
+      alert("Error: " + (data.message||"Unknown error"));
     }
   } catch(e) {
-    alert("❌ Server not running!\n\nPlease start: node server.js");
+    alert("Server not running!\n\nPlease start: node server.js");
   }
 }
 
@@ -840,16 +771,14 @@ async function deleteStudent(email){
   try {
     const res = await fetch(`${API}/admin/students/${encodeURIComponent(email)}`, {method: "DELETE"});
     const data = await res.json();
-    if(data.success){ alert("🗑️ Student deleted"); loadStudentSheet(); }
-    else alert("❌ " + data.message);
+    if(data.success){ alert("Student deleted."); loadStudentSheet(); }
+    else alert("Error: " + data.message);
   } catch(e) {
-    alert("❌ Server not reachable.");
+    alert("Server not reachable.");
   }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   ATTENDANCE — localStorage mein permanent save
-══════════════════════════════════════════════════════════════════ */
+/* ── ATTENDANCE ── */
 function getTodayStr(){ return new Date().toISOString().split("T")[0]; }
 
 async function initAttendance(){
@@ -912,15 +841,15 @@ function renderAttendanceTable(){
       <td>${i+1}</td>
       <td>${s.photo
         ? `<img src="${s.photo}" class="photo-thumb">`
-        : `<div style="width:32px;height:32px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;">👤</div>`}</td>
+        : `<div style="width:32px;height:32px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;">&#128100;</div>`}</td>
       <td><b>${escHtml(s.name||'—')}</b><br><span style="font-size:11px;color:#888;">${escHtml(s.email||'')}</span></td>
       <td>${escHtml(s.rollNo||'—')}</td>
       <td>${escHtml(s.course||'—')}</td>
-      <td>${s.bookedBus ? `🚌 Bus ${escHtml(s.bookedBus)}` : '<span style="color:#aaa;">—</span>'}</td>
+      <td>${s.bookedBus ? `Bus ${escHtml(s.bookedBus)}` : '<span style="color:#aaa;">—</span>'}</td>
       <td>
         <div class="att-toggle-btns">
-          <button class="att-btn present ${status==='P'?'active':''}" data-email="${escHtml(s.email)}" data-status="P">✅ Present</button>
-          <button class="att-btn absent ${status==='A'?'active':''}" data-email="${escHtml(s.email)}" data-status="A">❌ Absent</button>
+          <button class="att-btn present ${status==='P'?'active':''}" data-email="${escHtml(s.email)}" data-status="P">Present</button>
+          <button class="att-btn absent ${status==='A'?'active':''}" data-email="${escHtml(s.email)}" data-status="A">Absent</button>
         </div>
       </td>`;
     tr.querySelectorAll('.att-btn').forEach(btn => {
@@ -936,14 +865,14 @@ function setAttendance(email, status){
   else { todayAttendance[email] = status; }
   renderAttendanceTable();
   const marked = Object.keys(todayAttendance).length;
-  document.getElementById("attSaveStatus").textContent = `✏️ ${marked}/${allStudents.length} marked — don't forget to save!`;
+  document.getElementById("attSaveStatus").textContent = `${marked}/${allStudents.length} marked — don't forget to save!`;
 }
 
 function markAll(status){
   getFilteredStudents().forEach(s => { todayAttendance[s.email] = status; });
   renderAttendanceTable();
   const marked = Object.keys(todayAttendance).length;
-  document.getElementById("attSaveStatus").textContent = `✏️ ${marked}/${allStudents.length} marked — don't forget to save!`;
+  document.getElementById("attSaveStatus").textContent = `${marked}/${allStudents.length} marked — don't forget to save!`;
 }
 
 function updateAttSummary(){
@@ -952,16 +881,15 @@ function updateAttSummary(){
   const absent  = Object.values(todayAttendance).filter(v => v==='A').length;
   const pct     = total ? Math.round((present/total)*100) : 0;
   document.getElementById("attSummary").innerHTML = `
-    <div class="att-stat total">👥 Total<br>${total}</div>
-    <div class="att-stat present">✅ Present<br>${present}</div>
-    <div class="att-stat absent">❌ Absent<br>${absent}</div>
-    <div class="att-stat pct">📊 ${pct}%</div>
-    <div class="att-stat" style="background:#e8eaf6;color:#3949ab;">⬜ Unmarked<br>${total-present-absent}</div>`;
+    <div class="att-stat total">Total<br>${total}</div>
+    <div class="att-stat present">Present<br>${present}</div>
+    <div class="att-stat absent">Absent<br>${absent}</div>
+    <div class="att-stat pct">${pct}%</div>
+    <div class="att-stat" style="background:#e8eaf6;color:#3949ab;">Unmarked<br>${total-present-absent}</div>`;
 }
 
 async function saveAttendance(){
   if(!currentAttDate){ alert("Select a date first!"); return; }
-  // ✅ localStorage mein save
   lsSet("attendance_" + currentAttDate, todayAttendance);
   let attDates = lsGet("attendanceDates", []);
   if(!attDates.includes(currentAttDate)){
@@ -971,8 +899,8 @@ async function saveAttendance(){
   }
   const marked  = Object.keys(todayAttendance).length;
   const present = Object.values(todayAttendance).filter(v => v==='P').length;
-  document.getElementById("attSaveStatus").textContent = `✅ Saved! ${present} present, ${marked-present} absent — ${new Date().toLocaleTimeString()}`;
-  alert(`✅ Attendance saved for ${currentAttDate}!\nPresent: ${present} | Absent: ${marked-present} | Unmarked: ${allStudents.length-marked}`);
+  document.getElementById("attSaveStatus").textContent = `Saved — ${present} present, ${marked-present} absent — ${new Date().toLocaleTimeString()}`;
+  alert(`Attendance saved for ${currentAttDate}.\nPresent: ${present} | Absent: ${marked-present} | Unmarked: ${allStudents.length-marked}`);
 }
 
 function switchAttView(view){
@@ -998,10 +926,10 @@ async function loadHistoryDate(){
   const total   = allStudents.length;
   const pct     = total ? Math.round((present/total)*100) : 0;
   document.getElementById("histSummary").innerHTML = `
-    <div class="att-stat total">👥 Total<br>${total}</div>
-    <div class="att-stat present">✅ Present<br>${present}</div>
-    <div class="att-stat absent">❌ Absent<br>${absent}</div>
-    <div class="att-stat pct">📊 ${pct}%</div>`;
+    <div class="att-stat total">Total<br>${total}</div>
+    <div class="att-stat present">Present<br>${present}</div>
+    <div class="att-stat absent">Absent<br>${absent}</div>
+    <div class="att-stat pct">${pct}%</div>`;
   if(!Object.keys(data).length){
     tbody.innerHTML = `<tr><td colspan="6" align="center" style="color:#888;">No attendance recorded for this date</td></tr>`;
     return;
@@ -1009,16 +937,16 @@ async function loadHistoryDate(){
   tbody.innerHTML = allStudents.map((s,i) => {
     const status = data[s.email] || "";
     const statusHtml = status==="P"
-      ? `<span style="color:#43a047;font-weight:700;">✅ Present</span>`
+      ? `<span style="color:#43a047;font-weight:700;">Present</span>`
       : status==="A"
-        ? `<span style="color:#e53935;font-weight:700;">❌ Absent</span>`
-        : `<span style="color:#bdbdbd;">— Not marked</span>`;
+        ? `<span style="color:#e53935;font-weight:700;">Absent</span>`
+        : `<span style="color:#bdbdbd;">Not marked</span>`;
     return `<tr>
       <td>${i+1}</td>
       <td><b>${escHtml(s.name||'—')}</b></td>
       <td>${escHtml(s.rollNo||'—')}</td>
       <td>${escHtml(s.course||'—')}</td>
-      <td>${s.bookedBus ? `🚌 Bus ${escHtml(s.bookedBus)}` : '—'}</td>
+      <td>${s.bookedBus ? `Bus ${escHtml(s.bookedBus)}` : '—'}</td>
       <td>${statusHtml}</td>
     </tr>`;
   }).join("");
@@ -1062,15 +990,15 @@ async function generateReport(){
 
   document.getElementById("attReportContent").innerHTML = `
     <div class="att-summary" style="margin-bottom:16px;">
-      <div class="att-stat total">📅 Days<br>${dates.length}</div>
-      <div class="att-stat present">✅ Avg Present<br>${rows.length ? Math.round(rows.reduce((a,r)=>a+(r.present||0),0)/rows.length*10)/10 : 0}</div>
-      <div class="att-stat pct">📊 Avg %<br>${rows.filter(r=>r.pct!==null).length ? Math.round(rows.filter(r=>r.pct!==null).reduce((a,r)=>a+(r.pct||0),0)/rows.filter(r=>r.pct!==null).length) : 0}%</div>
+      <div class="att-stat total">Days<br>${dates.length}</div>
+      <div class="att-stat present">Avg Present<br>${rows.length ? Math.round(rows.reduce((a,r)=>a+(r.present||0),0)/rows.length*10)/10 : 0}</div>
+      <div class="att-stat pct">Avg %<br>${rows.filter(r=>r.pct!==null).length ? Math.round(rows.filter(r=>r.pct!==null).reduce((a,r)=>a+(r.pct||0),0)/rows.filter(r=>r.pct!==null).length) : 0}%</div>
     </div>
     ${rows.map((r,i) => `
       <div class="att-report-card">
         <div>
           <div class="att-report-name">${i+1}. ${escHtml(r.s.name||'—')} <span style="font-size:12px;color:#888;">${escHtml(r.s.rollNo||'')}</span></div>
-          <div class="att-report-meta">${escHtml(r.s.course||'—')} | ${r.s.bookedBus?'Bus '+escHtml(r.s.bookedBus):'No bus'} | ✅ ${r.present} | ❌ ${r.absent} | 📅 ${r.total} days</div>
+          <div class="att-report-meta">${escHtml(r.s.course||'—')} | ${r.s.bookedBus?'Bus '+escHtml(r.s.bookedBus):'No bus'} | Present: ${r.present} | Absent: ${r.absent} | Days: ${r.total}</div>
         </div>
         <div class="att-report-bar-wrap">
           <div style="display:flex;align-items:center;">
@@ -1079,7 +1007,7 @@ async function generateReport(){
             </div>
             <span class="att-report-pct" style="color:${(r.pct||0)>=75?'#2e7d32':(r.pct||0)>=50?'#e65100':'#c62828'};">${r.pct!==null?r.pct+'%':'N/A'}</span>
           </div>
-          ${(r.pct||0)<75 ? `<div style="font-size:11px;color:#e53935;margin-top:3px;">⚠️ Below 75%</div>` : ''}
+          ${(r.pct||0)<75 ? `<div style="font-size:11px;color:#e53935;margin-top:3px;">Below 75%</div>` : ''}
         </div>
       </div>`).join("")}`;
 }
@@ -1098,7 +1026,7 @@ document.getElementById("saveNoticeBtn").onclick = async () => {
       method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({notices})
     });
   } catch(e) {}
-  alert("Notice sent ✅");
+  alert("Notice sent.");
   noticeModal.style.display = "none";
   document.getElementById("noticeText").value = "";
 };
@@ -1117,23 +1045,14 @@ function downloadPDF(){
 function openSSModal(src){ ssFullImg.src = src; ssModal.style.display = "flex"; }
 function closeSSModal(){ ssModal.style.display = "none"; }
 
-/* ══════════════════════════════════════════════════════════════════
-   STUDENT APP SYNC — Same Browser ke andar
-   
-   Agar student app aur admin app same browser mein khule hain to
-   storage event se real-time updates milenge.
-   Agar alag device pe hain to backend zaruri hai.
-══════════════════════════════════════════════════════════════════ */
+/* ── CROSS-TAB SYNC ── */
 window.addEventListener("storage", (e) => {
-  // Koi bhi busSeats_ key change hogi to refresh karo
   if(e.key && e.key.startsWith("busSeats_") && currentBus){
     const changedBus = e.key.replace("busSeats_", "");
     if(changedBus === currentBus){
-      console.log("Bus", currentBus, "data changed from another tab, refreshing...");
       loadBus(currentBus);
     }
   }
-  // Complaints change hoti hain to refresh karo
   if(e.key === "busComplaints"){
     const complaintSection = document.getElementById("complaintSection");
     if(complaintSection.style.display !== "none"){
